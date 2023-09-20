@@ -10,6 +10,10 @@
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " />
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
   <ItemGroup>
+    <None Remove="Assets\" />
+    <None Remove="Assets\Diagrams\" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
   </ItemGroup>
 
@@ -21,4 +25,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.11" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Assets\" />
+    <Folder Include="Assets\Diagrams\" />
+  </ItemGroup>
 </Project>
