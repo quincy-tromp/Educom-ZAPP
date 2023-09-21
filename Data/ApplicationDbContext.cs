@@ -5,9 +5,11 @@ namespace Zapp.Data;
 
 public class ApplicationDbContext : IdentityDbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
+    private readonly string connectionString = "Server=localhost;Database=Zapp;Uid=ZappUser;Pwd=xhXNl)Lel)FKRT7];";
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
     }
 }
 
