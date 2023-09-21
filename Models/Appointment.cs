@@ -5,10 +5,14 @@ namespace Zapp.Models
 	{
 		public int Id { get; set; }
 		public int CustomerId { get; set; }
+		public Customer Customer { get; set; } = null!;
 		public int EmployeeId { get; set; }
-		public DateTime Scheduled { get; set; }
+        public Employee Employee { get; set; } = null!;
+        public DateTime Scheduled { get; set; }
 		public DateTime? CheckedIn { get; set; }
 		public DateTime? CheckedOut { get; set; }
+
+		public ICollection<AppointmentTask> AppointmentTasks = new List<AppointmentTask>();
 	}
 }
 

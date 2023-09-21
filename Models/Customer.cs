@@ -8,6 +8,7 @@ namespace Zapp.Models
 		public string Address { get; set; }
 		public string PostalCode { get; set; }
 		public string Residence { get; set; }
+		public ICollection<Appointment> Appointments { get; } = new List<Appointment>();
 	}
 }
 
