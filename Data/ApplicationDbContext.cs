@@ -57,5 +57,6 @@ public class ApplicationDbContext : IdentityDbContext<Employee, IdentityRole, st
 
     public DbSet<Zapp.Models.Appointment> Appointment { get; set; } 
     public DbSet<Zapp.Models.Customer> Customer { get; set; } 
+    public DbSet<Zapp.Models.CareTask> CareTask { get; set; }
 }
 
