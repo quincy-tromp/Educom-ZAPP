@@ -6,7 +6,7 @@ namespace Zapp.Models
 		public int Id { get; set; }
 		public int CustomerId { get; set; }
 		public Customer Customer { get; set; } = null!;
-		public int EmployeeId { get; set; }
+		public string EmployeeId { get; set; }
         public Employee Employee { get; set; } = null!;
         public DateTime Scheduled { get; set; }
 		public DateTime? CheckedIn { get; set; }

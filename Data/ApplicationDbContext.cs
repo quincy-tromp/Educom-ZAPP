@@ -14,9 +14,45 @@ public class ApplicationDbContext : IdentityDbContext<Employee, IdentityRole, st
         optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
     }
 
-    //protected override void OnModelCreating(ModelBuilder builder)
-    //{
-    //    base.OnModelCreating(builder);
-    //}
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Employee>()
+            .HasMany(e => e.Appointments)
+            .WithOne(e => e.Employee)
+            .HasForeignKey(e => e.EmployeeId)
+            .IsRequired();
+
+        modelBuilder.Entity<Customer>()
+            .HasMany(e => e.Appointments)
+            .WithOne(e => e.Customer)
+            .HasForeignKey(e => e.CustomerId)
+            .IsRequired();
+
+        modelBuilder.Entity<Customer>()
+            .HasMany(e => e.CustomerTasks)
+            .WithOne(e => e.Customer)
+            .HasForeignKey(e => e.CustomerId)
+            .IsRequired();
+
+        modelBuilder.Entity<CareTask>()
+            .HasMany(e => e.CustomerTasks)
+            .WithOne(e => e.Task)
+            .HasForeignKey(e => e.TaskId)
+            .IsRequired();
+
+        modelBuilder.Entity<CareTask>()
+            .HasMany(e => e.AppointmentTasks)
+            .WithOne(e => e.Task)
+            .HasForeignKey(e => e.TaskId)
+            .IsRequired();
+
+        modelBuilder.Entity<Appointment>()
+            .HasMany(e => e.AppointmentTasks)
+            .WithOne(e => e.Appointment)
+            .HasForeignKey(e => e.AppointmentId)
+            .IsRequired();
+    }
 }
 
