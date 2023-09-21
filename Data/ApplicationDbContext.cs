@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Zapp.Models;
@@ -54,5 +54,7 @@ public class ApplicationDbContext : IdentityDbContext<Employee, IdentityRole, st
             .HasForeignKey(e => e.AppointmentId)
             .IsRequired();
     }
+
+    public DbSet<Zapp.Models.Appointment> Appointment { get; set; } 
 }
 
