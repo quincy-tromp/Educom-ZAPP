@@ -10,32 +10,32 @@ namespace Zapp.Models
 		{
 			using (var context = new ApplicationDbContext())
 			{
-				if (context.CareTask.Any())
+				if (context.TaskItem.Any())
 				{
 					return;
 				}
-				context.CareTask.AddRange(
-					new CareTask
+				context.TaskItem.AddRange(
+					new TaskItem
 					{
 						Name = "Koffie zetten"
 					},
-					new CareTask
+					new TaskItem
 					{
 						Name = "Medicatie toedienen"
 					},
-					new CareTask
+					new TaskItem
 					{
 						Name = "Afwassen"
 					},
-					new CareTask
+					new TaskItem
 					{
 						Name = "Stofzuigen"
 					},
-					new CareTask
+					new TaskItem
 					{
 						Name = "Dweilen"
 					},
-					new CareTask
+					new TaskItem
 					{
 						Name = "Steunkousen aantrekken"
 					}

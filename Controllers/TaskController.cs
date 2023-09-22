@@ -22,27 +22,27 @@ namespace Zapp.Controllers
         // GET: Task
         public async Task<IActionResult> Index()
         {
-              return _context.CareTask != null ? 
-                          View(await _context.CareTask.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.CareTask'  is null.");
+              return _context.TaskItem != null ? 
+                          View(await _context.TaskItem.ToListAsync()) :
+                          Problem("Entity set 'ApplicationDbContext.TaskItem'  is null.");
         }
 
         // GET: Task/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.CareTask == null)
+            if (id == null || _context.TaskItem == null)
             {
                 return NotFound();
             }
 
-            var careTask = await _context.CareTask
+            var taskItem = await _context.TaskItem
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (careTask == null)
+            if (taskItem == null)
             {
                 return NotFound();
             }
 
-            return View(careTask);
+            return View(taskItem);
         }
 
         // GET: Task/Create
@@ -56,31 +56,31 @@ namespace Zapp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] CareTask careTask)
+        public async Task<IActionResult> Create([Bind("Id,Name")] TaskItem taskItem)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(careTask);
+                _context.Add(taskItem);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(careTask);
+            return View(taskItem);
         }
 
         // GET: Task/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.CareTask == null)
+            if (id == null || _context.TaskItem == null)
             {
                 return NotFound();
             }
 
-            var careTask = await _context.CareTask.FindAsync(id);
-            if (careTask == null)
+            var taskItem = await _context.TaskItem.FindAsync(id);
+            if (taskItem == null)
             {
                 return NotFound();
             }
-            return View(careTask);
+            return View(taskItem);
         }
 
         // POST: Task/Edit/5
@@ -88,9 +88,9 @@ namespace Zapp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] CareTask careTask)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] TaskItem taskItem)
         {
-            if (id != careTask.Id)
+            if (id != taskItem.Id)
             {
                 return NotFound();
             }
@@ -99,12 +99,12 @@ namespace Zapp.Controllers
             {
                 try
                 {
-                    _context.Update(careTask);
+                    _context.Update(taskItem);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CareTaskExists(careTask.Id))
+                    if (!CareTaskExists(taskItem.Id))
                     {
                         return NotFound();
                     }
@@ -115,25 +115,25 @@ namespace Zapp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(careTask);
+            return View(taskItem);
         }
 
         // GET: Task/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.CareTask == null)
+            if (id == null || _context.TaskItem == null)
             {
                 return NotFound();
             }
 
-            var careTask = await _context.CareTask
+            var taskItem = await _context.TaskItem
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (careTask == null)
+            if (taskItem == null)
             {
                 return NotFound();
             }
 
-            return View(careTask);
+            return View(taskItem);
         }
 
         // POST: Task/Delete/5
@@ -141,14 +141,14 @@ namespace Zapp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.CareTask == null)
+            if (_context.TaskItem == null)
             {
-                return Problem("Entity set 'ApplicationDbContext.CareTask'  is null.");
+                return Problem("Entity set 'ApplicationDbContext.TaskItem'  is null.");
             }
-            var careTask = await _context.CareTask.FindAsync(id);
-            if (careTask != null)
+            var taskItem = await _context.TaskItem.FindAsync(id);
+            if (taskItem != null)
             {
-                _context.CareTask.Remove(careTask);
+                _context.TaskItem.Remove(taskItem);
             }
             
             await _context.SaveChangesAsync();
@@ -157,7 +157,7 @@ namespace Zapp.Controllers
 
         private bool CareTaskExists(int id)
         {
-          return (_context.CareTask?.Any(e => e.Id == id)).GetValueOrDefault();
+          return (_context.TaskItem?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

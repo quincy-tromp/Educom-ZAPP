@@ -36,13 +36,13 @@ public class ApplicationDbContext : IdentityDbContext<Employee, IdentityRole, st
             .HasForeignKey(e => e.CustomerId)
             .IsRequired();
 
-        modelBuilder.Entity<CareTask>()
+        modelBuilder.Entity<TaskItem>()
             .HasMany(e => e.CustomerTasks)
             .WithOne(e => e.Task)
             .HasForeignKey(e => e.TaskId)
             .IsRequired();
 
-        modelBuilder.Entity<CareTask>()
+        modelBuilder.Entity<TaskItem>()
             .HasMany(e => e.AppointmentTasks)
             .WithOne(e => e.Task)
             .HasForeignKey(e => e.TaskId)
@@ -57,6 +57,6 @@ public class ApplicationDbContext : IdentityDbContext<Employee, IdentityRole, st
 
     public DbSet<Zapp.Models.Appointment> Appointment { get; set; } 
     public DbSet<Zapp.Models.Customer> Customer { get; set; } 
-    public DbSet<Zapp.Models.CareTask> CareTask { get; set; }
+    public DbSet<Zapp.Models.TaskItem> TaskItem { get; set; }
 }
 

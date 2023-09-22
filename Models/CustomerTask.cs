@@ -11,7 +11,7 @@ namespace Zapp.Models
 		public Customer Customer { get; } = null!;
         [Required]
         public int TaskId { get; set; }
-		public CareTask Task { get; } = null!;
+		public TaskItem Task { get; } = null!;
         [Column(TypeName = "varchar(256)")]
         public string? AdditionalInfo { get; set; }
 	}
