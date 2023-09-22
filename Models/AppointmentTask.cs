@@ -1,16 +1,20 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 namespace Zapp.Models
 {
 	public class AppointmentTask
 	{
-
 		public int Id { get; set; }
-		public int AppointmentId { get; set; }
+        [Required]
+        public int AppointmentId { get; set; }
 		public Appointment Appointment { get; } = null!;
-		public int TaskId { get; set; }
+        [Required]
+        public int TaskId { get; set; }
 		public CareTask Task { get; } = null!;
-		public string? AdditionalInfo { get; set; }
-		public bool IsDone { get; set; }
+        [Column(TypeName = "varchar(256)")]
+        public string? AdditionalInfo { get; set; }
+		public bool IsDone { get; set; } = false;
 	}
 }
 
