@@ -12,8 +12,8 @@ namespace Zapp.Models
         [Required]
         public string EmployeeId { get; set; }
         public Employee Employee { get; set; } = null!;
-        [Required]
-        public DateTime Scheduled { get; set; }
+		[Required]
+		public DateTime Scheduled { get; set; }
 		public DateTime? CheckedIn { get; set; }
 		public DateTime? CheckedOut { get; set; }
 

@@ -116,6 +116,7 @@ namespace Zapp.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    returnUrl += "Appointment";
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

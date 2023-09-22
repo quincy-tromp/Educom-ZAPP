@@ -51,7 +51,21 @@ namespace Zapp.Controllers
         {
             ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id");
             ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
+
+            AppointmentViewModel viewModel = new AppointmentViewModel()
+            {
+                Appointment = new Appointment(),
+            };
+            FillAppointmentViewModel(viewModel);
+
+            return View(viewModel);
+        }
+
+        private void FillAppointmentViewModel(AppointmentViewModel viewModel)
+        {
+            viewModel.AllCustomers = _context.Customer.ToList();
+            viewModel.AllEmployees = _context.Users.ToList();
+            viewModel.Appointment.Scheduled = DateTime.Today;
         }
 
         // POST: Appointment/Create

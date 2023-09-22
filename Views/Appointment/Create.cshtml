@@ -1,4 +1,4 @@
-@model Zapp.Models.Appointment
+@model Zapp.Models.AppointmentViewModel
 
 @{
     Layout = null;
@@ -20,27 +20,17 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="CustomerId" class="control-label"></label>
-                <select asp-for="CustomerId" class ="form-control" asp-items="ViewBag.CustomerId"></select>
+                <label asp-for="Appointment.Scheduled" class="control-label"></label>
+                <input asp-for="Appointment.Scheduled" class="form-control"/>
+                <span asp-validation-for="Appointment.Scheduled" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="EmployeeId" class="control-label"></label>
-                <select asp-for="EmployeeId" class ="form-control" asp-items="ViewBag.EmployeeId"></select>
+                <label asp-for="Appointment.CustomerId" class="control-label">Selecteer Klant</label>
+                <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems"></select>
             </div>
             <div class="form-group">
-                <label asp-for="Scheduled" class="control-label"></label>
-                <input asp-for="Scheduled" class="form-control" />
-                <span asp-validation-for="Scheduled" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CheckedIn" class="control-label"></label>
-                <input asp-for="CheckedIn" class="form-control" />
-                <span asp-validation-for="CheckedIn" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CheckedOut" class="control-label"></label>
-                <input asp-for="CheckedOut" class="form-control" />
-                <span asp-validation-for="CheckedOut" class="text-danger"></span>
+                <label asp-for="Appointment.EmployeeId" class="control-label">Selecteer Medewerker</label>
+                <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems"></select>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
