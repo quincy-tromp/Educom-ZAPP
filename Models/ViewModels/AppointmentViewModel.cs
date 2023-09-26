@@ -8,17 +8,17 @@ namespace Zapp.Models
 {
 	public class AppointmentViewModel
 	{
-		//private List<int>? taskIds = null;
-
 		public required Appointment Appointment { get; set; }
 
 		public AppointmentTask[] AppointmentTasks { get; set; } = new AppointmentTask[] { new AppointmentTask() };
+
 
 		public List<Customer> AllCustomers { get; set; } = new();
 
 		public List<Employee> AllEmployees { get; set; } = new();
 
 		public List<TaskItem> AllTasks { get; set; } = new();
+
 
         public List<SelectListItem> AllCustomersListItems
 		{
@@ -32,7 +32,6 @@ namespace Zapp.Models
 				).ToList();
 			}
 		}
-
 		public List<SelectListItem> AllEmployeesListItems
 		{
 			get
@@ -45,7 +44,6 @@ namespace Zapp.Models
 				).ToList();
 			}
 		}
-
 		public List<SelectListItem> AllTasksListItems
 		{
 			get
@@ -60,23 +58,3 @@ namespace Zapp.Models
 		}
     }
 }
-
-//public class AppointmentTasks : IEnumerable<AppointmentTask>
-//{
-//	private List<AppointmentTask> appointmentTasks = new List<AppointmentTask>();
-
-//	public void AddTask(AppointmentTask task)
-//	{
-//		appointmentTasks.Add(task);
-//	}
-
-//	public IEnumerator<AppointmentTask> GetEnumerator()
-//	{
-//		return appointmentTasks.GetEnumerator();
-//	}
-
-//	IEnumerator IEnumerable.GetEnumerator()
-//	{
-//		return GetEnumerator();
-//	}
-//}

@@ -59,10 +59,10 @@
                         </thead>
                         <tbody>
                             @{ int i = -1; }
-                            @foreach (AppointmentTask task in Model.AppointmentTasks) { i++;
+                            @foreach (var task in Model.AppointmentTasks) { i++;
                                 <tr>
                                     <td>
-                                        <span></span>
+                                        <span>@(i+1)</span>
                                     </td>
                                     <td>
                                         <div class="form-group">

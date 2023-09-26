@@ -26,29 +26,6 @@ namespace Zapp.Models
 
 
 		public ICollection<AppointmentTask> AppointmentTasks = new List<AppointmentTask>();
-
-        private List<int>? taskIds = null; // NotMapped
-
-		[NotMapped]
-        public List<int> TaskIds
-        {
-            get
-            {
-                if (taskIds == null)
-                {
-                    taskIds = AppointmentTasks.Select(t => t.Id).ToList();
-                }
-                return taskIds;
-            }
-            set
-            {
-                taskIds = value;
-            }
-        }
-        public Appointment()
-        {
-            AppointmentTasks = new List<AppointmentTask>();
-        }
     }
 }
 

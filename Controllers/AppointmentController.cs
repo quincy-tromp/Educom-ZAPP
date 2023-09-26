@@ -52,11 +52,7 @@ namespace Zapp.Controllers
             //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id");
             //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id");
 
-            AppointmentViewModel viewModel = new AppointmentViewModel()
-            {
-                Appointment = new Appointment(),
-                //AppointmentTasks = new AppointmentTask[] { new AppointmentTask() }
-            };
+            AppointmentViewModel viewModel = new AppointmentViewModel() { Appointment = new Appointment() };
             viewModel = FillAppointmentViewModel(viewModel);
 
             return View(viewModel);
@@ -64,7 +60,6 @@ namespace Zapp.Controllers
 
         private AppointmentViewModel FillAppointmentViewModel(AppointmentViewModel viewModel)
         {
-//            viewModel.Appointment.AppointmentTasks.Add(new AppointmentTask());
             viewModel.Appointment.Scheduled = DateTime.Today;
             viewModel.AllCustomers = _context.Customer.ToList();
             viewModel.AllEmployees = _context.Users.ToList();
@@ -114,7 +109,6 @@ namespace Zapp.Controllers
 
                 if (lastAppointment != null)
                 {
-
                     foreach (var appointmentTask in viewModel.AppointmentTasks)
                     {
                         appointmentTask.AppointmentId = lastAppointment.Id;
