@@ -1,7 +1,7 @@
 @model Zapp.Models.AppointmentViewModel
 
 @{
-    Layout = null;
+    Layout = "_Layout.cshtml";
 }
 
 <!DOCTYPE html>
@@ -9,39 +9,97 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/Zapp/wwwroot/css/styles.css" />
     <title>Create</title>
 </head>
 <body>
 
-<h4>Appointment</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Appointment.Scheduled" class="control-label"></label>
-                <input asp-for="Appointment.Scheduled" class="form-control"/>
-                <span asp-validation-for="Appointment.Scheduled" class="text-danger"></span>
+    <h4>Appointment</h4>
+    <hr />
+    <form asp-action="Create">
+        <div class="row">
+            <div class="col-md-4">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Appointment.Scheduled" class="control-label">Selecteer Datum en Tijd</label>
+                    <input asp-for="Appointment.Scheduled" class="form-control" />
+                    <span asp-validation-for="Appointment.Scheduled" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Appointment.CustomerId" class="control-label">Selecteer Klant</label>
+                    <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems">
+                        <option value="" disabled selected>Selecteer Klant</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Appointment.EmployeeId" class="control-label">Selecteer Medewerker</label>
+                    <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems">
+                        <option value="" disabled selected>Selecteer Medewerker</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Appointment.CustomerId" class="control-label">Selecteer Klant</label>
-                <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Appointment.EmployeeId" class="control-label">Selecteer Medewerker</label>
-                <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+        </div>
+        <div class="row">
+                <div class="appointment-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <span>#</span>
+                                </th>
+                                <th>
+                                    <span>Taak</span>
+                                </th>
+                                <th>
+                                    <span>Additionele Informatie</span>
+                                </th>
+                                <th>Uitgevoerd?</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int i = -1; }
+                            @foreach (AppointmentTask task in Model.AppointmentTasks) { i++;
+                                <tr>
+                                    <td>
+                                        <span></span>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <select name="AppointmentTasks[@i].TaskId" asp-for="@task.TaskId" asp-items="Model.AllTasksListItems" class="form-control">
+                                                <option value="" disabled selected>Zoek taak</option>
+                                                <option value="" disabled>Taken</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input name="AppointmentTasks[@i].AdditionalInfo" asp-for="@task.AdditionalInfo" type="text" class="form-control" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input name="AppointmentTasks[@i].IsDone" type="checkbox" asp-for="@task.IsDone" disabled class="form-control" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button>Add</button>
+                                    </td>
+                                </tr>
+                            }
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+            </div>
+</form>
+    <div>
+        <a asp-action="Index">Back to List</a>
+    </div>
 
 </body>
 </html>

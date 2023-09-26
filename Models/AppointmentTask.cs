@@ -8,10 +8,10 @@ namespace Zapp.Models
 		public int Id { get; set; }
         [Required]
         public int AppointmentId { get; set; }
-		public Appointment Appointment { get; } = null!;
+		public Appointment Appointment { get; set; } = null!;
         [Required]
         public int TaskId { get; set; }
-		public TaskItem Task { get; } = null!;
+		public TaskItem Task { get; set; } = null!;
         [Column(TypeName = "varchar(256)")]
         public string? AdditionalInfo { get; set; }
 		public bool IsDone { get; set; } = false;

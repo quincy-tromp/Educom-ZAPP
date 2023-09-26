@@ -49,23 +49,27 @@ namespace Zapp.Controllers
         // GET: Appointment/Create
         public IActionResult Create()
         {
-            ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id");
-            ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id");
+            //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id");
+            //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id");
 
             AppointmentViewModel viewModel = new AppointmentViewModel()
             {
                 Appointment = new Appointment(),
+                //AppointmentTasks = new AppointmentTask[] { new AppointmentTask() }
             };
-            FillAppointmentViewModel(viewModel);
+            viewModel = FillAppointmentViewModel(viewModel);
 
             return View(viewModel);
         }
 
-        private void FillAppointmentViewModel(AppointmentViewModel viewModel)
+        private AppointmentViewModel FillAppointmentViewModel(AppointmentViewModel viewModel)
         {
+//            viewModel.Appointment.AppointmentTasks.Add(new AppointmentTask());
+            viewModel.Appointment.Scheduled = DateTime.Today;
             viewModel.AllCustomers = _context.Customer.ToList();
             viewModel.AllEmployees = _context.Users.ToList();
-            viewModel.Appointment.Scheduled = DateTime.Today;
+            viewModel.AllTasks = _context.TaskItem.ToList();
+            return viewModel;
         }
 
         // POST: Appointment/Create
@@ -73,17 +77,68 @@ namespace Zapp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CustomerId,EmployeeId,Scheduled,CheckedIn,CheckedOut")] Appointment appointment)
+        public ActionResult Create(AppointmentViewModel viewModel)
         {
-            if (ModelState.IsValid)
+            //if (ModelState.IsValid)
+            //{
+            //    _context.Add(appointment);
+            //    await _context.SaveChangesAsync();
+            //    return RedirectToAction(nameof(Index));
+            //}
+            //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
+            //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId);
+            //return View(appointment);
+            
+            try
             {
-                _context.Add(appointment);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                //if (_context.Appointment
+                //    .Where(e => e.EmployeeId == viewModel.Appointment.EmployeeId)
+                //    .Any(e => e.Scheduled == viewModel.Appointment.Scheduled)) 
+                //{
+                //    ModelState.AddModelError("Appointment.Scheduled", "Niet beschikbaar. Kies een andere tijd.");
+                //    return View(viewModel);
+                //}
+                Appointment appointment = viewModel.Appointment;
+
+                Customer? customer = _context.Customer.Find(appointment.CustomerId);
+                Employee? employee = _context.Users.Find(appointment.EmployeeId);
+
+                if (customer != null && employee != null)
+                {
+                    appointment.Customer = customer;
+                    appointment.Employee = employee;
+                }
+                _context.Appointment.Add(appointment);
+                _context.SaveChanges();
+
+                Appointment? lastAppointment = _context.Appointment.OrderBy(e => e.Id).Last();
+
+                if (lastAppointment != null)
+                {
+                    foreach (AppointmentTask appTask in appointment.AppointmentTasks)
+                    {
+                        TaskItem? taskItem = _context.TaskItem.Find(appTask.TaskId);
+
+                        if (taskItem != null)
+                        {
+                            appTask.Task = taskItem;
+                        }
+                        appTask.AppointmentId = lastAppointment.Id;
+
+                        appTask.Appointment = lastAppointment;
+
+                        _context.AppointmentTask.Add(appTask);
+                    }
+                }
+                
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Details), new { Id = viewModel.Appointment.Id });
             }
-            ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
-            ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId);
-            return View(appointment);
+            catch
+            {
+                ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
+                return View(viewModel);
+            }
         }
 
         // GET: Appointment/Edit/5

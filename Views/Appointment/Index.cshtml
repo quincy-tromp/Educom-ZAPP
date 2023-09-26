@@ -1,7 +1,7 @@
 @model IEnumerable<Zapp.Models.Appointment>
 
 @{
-    Layout = null;
+    Layout = "_Layout.cshtml";
 }
 
 <!DOCTYPE html>
@@ -40,10 +40,10 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Customer.Id)
+                @Html.DisplayFor(modelItem => item.Customer.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Employee.Id)
+                @Html.DisplayFor(modelItem => item.Employee.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Scheduled)
