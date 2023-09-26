@@ -8,7 +8,7 @@ namespace Zapp.Models
 {
 	public class AppointmentViewModel
 	{
-		private List<int>? taskIds = null;
+		//private List<int>? taskIds = null;
 
 		public required Appointment Appointment { get; set; }
 

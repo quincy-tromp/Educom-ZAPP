@@ -109,28 +109,28 @@ namespace Zapp.Controllers
                     appointment.Employee = employee;
                 }
                 _context.Appointment.Add(appointment);
-                _context.SaveChanges();
 
                 Appointment? lastAppointment = _context.Appointment.OrderBy(e => e.Id).Last();
 
                 if (lastAppointment != null)
                 {
-                    foreach (AppointmentTask appTask in appointment.AppointmentTasks)
+
+                    foreach (var appointmentTask in viewModel.AppointmentTasks)
                     {
-                        TaskItem? taskItem = _context.TaskItem.Find(appTask.TaskId);
+                        appointmentTask.AppointmentId = lastAppointment.Id;
 
-                        if (taskItem != null)
+                        appointmentTask.Appointment = lastAppointment;
+
+                        TaskItem? task = _context.TaskItem.Find(appointmentTask.TaskId);
+
+                        if (task != null)
                         {
-                            appTask.Task = taskItem;
+                            appointmentTask.Task = task;
                         }
-                        appTask.AppointmentId = lastAppointment.Id;
-
-                        appTask.Appointment = lastAppointment;
-
-                        _context.AppointmentTask.Add(appTask);
+                        _context.AppointmentTask.Add(appointmentTask);
+                        lastAppointment.AppointmentTasks.Add(appointmentTask);  
                     }
                 }
-                
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Details), new { Id = viewModel.Appointment.Id });
             }
