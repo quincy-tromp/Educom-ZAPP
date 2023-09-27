@@ -22,10 +22,7 @@ function addTableRow(table, rowIndex) {
         "<input id=\"task-info\" name=\"AppointmentTasks[" + rowIndex + "].AdditionalInfo\" asp-for=\"@task.AdditionalInfo\" type=\"text\" class=\"form-control\" />" +
     "</div>";
 
-    cell4.innerHTML =
-    "<div class=\"form-group\">" +
-        "<input id=\"is-task-done\" name=\"AppointmentTasks[" + rowIndex + "].IsDone\" type=\"checkbox\" asp-for=\"@task.IsDone\" disabled class=\"form-control\" />" +
-    "</div>";
+    cell4.innerHTML = "";
 
     cell5.innerHTML =
     "<button id=\"addRow\" onclick=\"addNewTask()\">Add</button>";

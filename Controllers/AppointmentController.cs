@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Zapp.Data;
 using Zapp.Models;
+using Zapp.Models.Business;
 
 namespace Zapp.Controllers
 {
@@ -53,19 +54,18 @@ namespace Zapp.Controllers
             //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id");
 
             AppointmentViewModel viewModel = new AppointmentViewModel() { Appointment = new Appointment() };
-            viewModel = FillAppointmentViewModel(viewModel);
-
+            viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
             return View(viewModel);
         }
-
-        private AppointmentViewModel FillAppointmentViewModel(AppointmentViewModel viewModel)
-        {
-            viewModel.Appointment.Scheduled = DateTime.Today;
-            viewModel.AllCustomers = _context.Customer.ToList();
-            viewModel.AllEmployees = _context.Users.ToList();
-            viewModel.AllTasks = _context.TaskItem.ToList();
-            return viewModel;
-        }
+        // OLD CODE
+        //private AppointmentViewModel FillAppointmentViewModel(AppointmentViewModel viewModel)
+        //{
+        //    viewModel.Appointment.Scheduled = DateTime.Today;
+        //    viewModel.AllCustomers = _context.Customer.ToList();
+        //    viewModel.AllEmployees = _context.Users.ToList();
+        //    viewModel.AllTasks = _context.TaskItem.ToList();
+        //    return viewModel;
+        //}
 
         // POST: Appointment/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -83,88 +83,94 @@ namespace Zapp.Controllers
             //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
             //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId);
             //return View(appointment);
-            var customerId = viewModel.Appointment.CustomerId;
-            var employeeId = viewModel.Appointment.EmployeeId;
-            var appointmentTasks = viewModel.AppointmentTasks;
-            bool isEmpty = true;
-            foreach (var appTask in appointmentTasks)
-            {
-                if (appTask.Task.Name != null)
-                {
-                    isEmpty = false;
-                    break;
-                }
-            }
-            
-            if (customerId == null || employeeId == null || isEmpty)
-            {
-                viewModel = FillAppointmentViewModel(viewModel);
-                return View(viewModel);
-            }
 
             try
             {
-                if (_context.Appointment
-                    .Where(e => e.EmployeeId == viewModel.Appointment.EmployeeId)
-                    .Any(e => e.Scheduled == viewModel.Appointment.Scheduled))
+                if (BuAppointment.IsAppointmentEmpty(viewModel))
+                {
+                    ModelState.AddModelError("ModelOnly", "Deze afspraak is leeg.");
+                    viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
+                    return View(viewModel);
+                }
+                if (BuAppointment.IsEmployeeUnavailable(_context, viewModel))
                 {
                     ModelState.AddModelError("Appointment.Scheduled", "Deze medewerker is niet beschikbaar op de gekozen tijdstip.");
-                    viewModel = FillAppointmentViewModel(viewModel);
+                    viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
+                    return View(viewModel);
+                }
+                if (BuAppointment.IsAppointmentTasksEmpty(viewModel.AppointmentTasks))
+                {
+                    ModelState.AddModelError("AppointmentTasks", "Voeg een taak toe.");
+                    viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
                     return View(viewModel);
                 }
 
-                Appointment appointment = viewModel.Appointment;
 
-                var customer = _context.Customer.Find(appointment.CustomerId);
+                Appointment newAppointment = viewModel.Appointment;
+                var customer = _context.Customer.Find(newAppointment.CustomerId);
                 if (customer != null)
                 {
-                    appointment.Customer = customer;
+                    newAppointment.Customer = customer;
                 }
-
-                var employee = _context.Users.Find(appointment.EmployeeId);
-                if (employee != null)
-                {
-                    appointment.Employee = employee;
+                var employee = _context.Users.Find(newAppointment.EmployeeId);
+                if (employee != null) {
+                    newAppointment.Employee = employee;
                 }
-                _context.Appointment.Add(appointment);
+                _context.Appointment.Add(newAppointment);
                 _context.SaveChanges();
 
-                var savedAppointment = _context.Appointment.OrderBy(e => e.Id).Last();
 
-                if (savedAppointment != null)
+                var appointment = _context.Appointment.OrderBy(e => e.Id).Last();
+                if (appointment != null)
                 {
                     foreach (var appointmentTask in viewModel.AppointmentTasks)
                     {
-                        appointmentTask.AppointmentId = savedAppointment.Id;
+                        appointmentTask.AppointmentId = appointment.Id;
+                        appointmentTask.Appointment = appointment;
 
-                        appointmentTask.Appointment = savedAppointment;
-
-                        var task = _context.TaskItem
+                        var taskItem = _context.TaskItem
                             .Where(e => e.Name == appointmentTask.Task.Name)
                             .FirstOrDefault();
-
-                        if (task != null)
+                        if (taskItem != null)
                         {
-                            appointmentTask.TaskId = task.Id;
-                            appointmentTask.Task = task;
+                            appointmentTask.TaskId = taskItem.Id;
+                            appointmentTask.Task = taskItem;
                         }
                         else
                         {
-                            TaskItem newTask = new TaskItem()
-                            {
-                                Name = appointmentTask.Task.Name
-                            };
-                            _context.TaskItem.Add(newTask);
+                            TaskItem newTaskItem = new TaskItem() { Name = appointmentTask.Task.Name };
+                            _context.TaskItem.Add(newTaskItem);
+                            _context.SaveChanges();
 
-                            var savedTask = _context.TaskItem.OrderBy(e => e.Id).Last();
-                            if (savedTask != null)
+                            var task = _context.TaskItem.OrderBy(e => e.Id).Last();
+                            if (task != null)
                             {
-                                appointmentTask.TaskId = savedTask.Id;
-                                appointmentTask.Task = savedTask;
+                                appointmentTask.TaskId = task.Id;
+                                appointmentTask.Task = task;
                             }
                         }
                         _context.AppointmentTask.Add(appointmentTask);
-                        savedAppointment.AppointmentTasks.Add(appointmentTask);
+                        appointment.AppointmentTasks.Add(appointmentTask);
+                        _context.SaveChanges();
+                    }
+
+                    var customerTasks = appointment.Customer.CustomerTasks;
+                    if (customerTasks != null)
+                    {
+                        foreach (var customerTask in customerTasks)
+                        {
+                            var appointmentTask = new AppointmentTask()
+                            {
+                                AppointmentId = appointment.Id,
+                                Appointment = appointment,
+                                TaskId = customerTask.TaskId,
+                                Task = customerTask.Task,
+                                AdditionalInfo = customerTask.AdditionalInfo
+                            };
+                            _context.AppointmentTask.Add(appointmentTask);
+                            appointment.AppointmentTasks.Add(appointmentTask);
+                            _context.SaveChanges();
+                        }
                     }
                 }
                 _context.SaveChanges();
@@ -173,7 +179,7 @@ namespace Zapp.Controllers
             catch
             {
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
-                viewModel = FillAppointmentViewModel(viewModel);
+                viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
                 return View(viewModel);
             }
         }
@@ -191,9 +197,22 @@ namespace Zapp.Controllers
             {
                 return NotFound();
             }
-            ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
-            ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId);
-            return View(appointment);
+
+            var customer = await _context.Customer.FindAsync(appointment.CustomerId);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            var customerTasks = _context.CustomerTask
+                .Where(e => e.CustomerId == customer.Id)
+                .ToList();
+
+            AppointmentViewModel viewModel = new AppointmentViewModel() { Appointment = appointment };
+            viewModel.CustomerTasks = customerTasks.ToArray();
+            //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
+            //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId);
+            return View(viewModel);
         }
 
         // POST: Appointment/Edit/5
@@ -201,36 +220,36 @@ namespace Zapp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CustomerId,EmployeeId,Scheduled,CheckedIn,CheckedOut")] Appointment appointment)
+        public async Task<IActionResult> Edit(AppointmentViewModel viewModel)
         {
-            if (id != appointment.Id)
-            {
-                return NotFound();
-            }
+            //if (id != appointment.Id)
+            //{
+            //    return NotFound();
+            //}
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(appointment);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!AppointmentExists(appointment.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
-            ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId);
-            return View(appointment);
+            //if (ModelState.IsValid)
+            //{
+            //    try
+            //    {
+            //        _context.Update(appointment);
+            //        await _context.SaveChangesAsync();
+            //    }
+            //    catch (DbUpdateConcurrencyException)
+            //    {
+            //        if (!AppointmentExists(appointment.Id))
+            //        {
+            //            return NotFound();
+            //        }
+            //        else
+            //        {
+            //            throw;
+            //        }
+            //    }
+            //    return RedirectToAction(nameof(Index));
+            //}
+            //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
+            //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId);
+            return View(viewModel);
         }
 
         // GET: Appointment/Delete/5

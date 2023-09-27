@@ -13,6 +13,7 @@
     <None Remove="Assets\" />
     <None Remove="Assets\Diagrams\" />
     <None Remove="Models\ViewModels\" />
+    <None Remove="Models\Business\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
@@ -33,5 +34,6 @@
     <Folder Include="Assets\" />
     <Folder Include="Assets\Diagrams\" />
     <Folder Include="Models\ViewModels\" />
+    <Folder Include="Models\Business\" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
-@model Zapp.Models.Appointment
+@model Zapp.Models.AppointmentViewModel
 
 @{
-    Layout = null;
+    Layout = "_Layout.cshtml";
 }
 
 <!DOCTYPE html>
@@ -13,48 +13,124 @@
 </head>
 <body>
 
-<h4>Appointment</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="CustomerId" class="control-label"></label>
-                <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.CustomerId"></select>
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
+    <h4>Appointment</h4>
+    <hr />
+    <form asp-action="Edit">
+        <div class="row">
+            <div class="col-md-4">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Appointment.Scheduled" class="control-label">Selecteer Datum en Tijd</label>
+                    <input asp-for="Appointment.Scheduled" class="form-control" />
+                    <span asp-validation-for="Appointment.Scheduled" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Appointment.CustomerId" class="control-label">Selecteer Klant</label>
+                    <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems">
+                        <option value="" disabled selected>Selecteer Klant</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Appointment.EmployeeId" class="control-label">Selecteer Medewerker</label>
+                    <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems">
+                        <option value="" disabled selected>Selecteer Medewerker</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container">
+                <datalist id="task-list">
+                    @foreach (var name in Model.AllTaskNames)
+                    {
+                        <option value="@name"></option>
+                    }
+                </datalist>
+                <table class="table" id="appointment-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <span>#</span>
+                            </th>
+                            <th>
+                                <span>Taak</span>
+                            </th>
+                            <th>
+                                <span>Additionele Informatie</span>
+                            </th>
+                            <th>Uitgevoerd?</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int t = -1; }
+
+                        @if (Model.CustomerTasks != null)
+                        {
+                            @foreach (var task in Model.CustomerTasks)
+                            {
+                                t++;
+                                <tr>
+                                    <td>
+                                        <span id="row-index">@(t+1)</span>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            @*<input id="task-names" class="form-control" value="@task.Task.Name" />*@
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            @*<input id="task-info" value="@task.AdditionalInfo" type="text" class="form-control" />*@
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            @*<input id="is-task-done" type="checkbox" disabled class="form-control" />*@
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @*<button id="addRow" onclick="addNewTask()">Add</button>*@
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        @foreach (var task in Model.AppointmentTasks)
+                        {
+                            <tr>
+                                <td>
+                                    <span id="row-index">@(t+1)</span>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <input id="task-names" list="task-list" name="AppointmentTasks[@t].Task.Name" asp-for="@task.Task.Name" class="form-control" placeholder="Zoek taak" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <input id="task-info" name="AppointmentTasks[@t].AdditionalInfo" asp-for="@task.AdditionalInfo" type="text" class="form-control" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <input id="is-task-done" name="AppointmentTasks[@t].IsDone" type="checkbox" asp-for="@task.IsDone" disabled class="form-control" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <button id="addRow" onclick="addNewTask()">Add</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
             <div class="form-group">
-                <label asp-for="EmployeeId" class="control-label"></label>
-                <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.EmployeeId"></select>
-                <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                <input type="submit" value="Create" class="btn btn-primary" />
             </div>
-            <div class="form-group">
-                <label asp-for="Scheduled" class="control-label"></label>
-                <input asp-for="Scheduled" class="form-control" />
-                <span asp-validation-for="Scheduled" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CheckedIn" class="control-label"></label>
-                <input asp-for="CheckedIn" class="form-control" />
-                <span asp-validation-for="CheckedIn" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CheckedOut" class="control-label"></label>
-                <input asp-for="CheckedOut" class="form-control" />
-                <span asp-validation-for="CheckedOut" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
+    </form>
+    <div>
+        <a asp-action="Index">Back to List</a>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 </body>
 </html>
