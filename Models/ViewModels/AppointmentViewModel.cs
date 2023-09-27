@@ -12,6 +12,8 @@ namespace Zapp.Models
 
 		public AppointmentTask[] AppointmentTasks { get; set; } = new AppointmentTask[] { new AppointmentTask() };
 
+		public TaskItem[] Tasks { get; set; } = new TaskItem[] { new TaskItem() };
+
 
 		public List<Customer> AllCustomers { get; set; } = new();
 
@@ -54,6 +56,13 @@ namespace Zapp.Models
 					Value = e.Id.ToString()
 				}
 				).ToList();
+			}
+		}
+		public List<string> AllTaskNames
+		{
+			get
+			{
+				return AllTasks.Select(e => e.Name).ToList();
 			}
 		}
     }

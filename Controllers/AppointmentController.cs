@@ -83,46 +83,88 @@ namespace Zapp.Controllers
             //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
             //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId);
             //return View(appointment);
+            var customerId = viewModel.Appointment.CustomerId;
+            var employeeId = viewModel.Appointment.EmployeeId;
+            var appointmentTasks = viewModel.AppointmentTasks;
+            bool isEmpty = true;
+            foreach (var appTask in appointmentTasks)
+            {
+                if (appTask.Task.Name != null)
+                {
+                    isEmpty = false;
+                    break;
+                }
+            }
             
+            if (customerId == null || employeeId == null || isEmpty)
+            {
+                viewModel = FillAppointmentViewModel(viewModel);
+                return View(viewModel);
+            }
+
             try
             {
-                //if (_context.Appointment
-                //    .Where(e => e.EmployeeId == viewModel.Appointment.EmployeeId)
-                //    .Any(e => e.Scheduled == viewModel.Appointment.Scheduled)) 
-                //{
-                //    ModelState.AddModelError("Appointment.Scheduled", "Niet beschikbaar. Kies een andere tijd.");
-                //    return View(viewModel);
-                //}
+                if (_context.Appointment
+                    .Where(e => e.EmployeeId == viewModel.Appointment.EmployeeId)
+                    .Any(e => e.Scheduled == viewModel.Appointment.Scheduled))
+                {
+                    ModelState.AddModelError("Appointment.Scheduled", "Deze medewerker is niet beschikbaar op de gekozen tijdstip.");
+                    viewModel = FillAppointmentViewModel(viewModel);
+                    return View(viewModel);
+                }
+
                 Appointment appointment = viewModel.Appointment;
 
-                Customer? customer = _context.Customer.Find(appointment.CustomerId);
-                Employee? employee = _context.Users.Find(appointment.EmployeeId);
-
-                if (customer != null && employee != null)
+                var customer = _context.Customer.Find(appointment.CustomerId);
+                if (customer != null)
                 {
                     appointment.Customer = customer;
+                }
+
+                var employee = _context.Users.Find(appointment.EmployeeId);
+                if (employee != null)
+                {
                     appointment.Employee = employee;
                 }
                 _context.Appointment.Add(appointment);
+                _context.SaveChanges();
 
-                Appointment? lastAppointment = _context.Appointment.OrderBy(e => e.Id).Last();
+                var savedAppointment = _context.Appointment.OrderBy(e => e.Id).Last();
 
-                if (lastAppointment != null)
+                if (savedAppointment != null)
                 {
                     foreach (var appointmentTask in viewModel.AppointmentTasks)
                     {
-                        appointmentTask.AppointmentId = lastAppointment.Id;
+                        appointmentTask.AppointmentId = savedAppointment.Id;
 
-                        appointmentTask.Appointment = lastAppointment;
+                        appointmentTask.Appointment = savedAppointment;
 
-                        TaskItem? task = _context.TaskItem.Find(appointmentTask.TaskId);
+                        var task = _context.TaskItem
+                            .Where(e => e.Name == appointmentTask.Task.Name)
+                            .FirstOrDefault();
 
                         if (task != null)
                         {
+                            appointmentTask.TaskId = task.Id;
                             appointmentTask.Task = task;
                         }
+                        else
+                        {
+                            TaskItem newTask = new TaskItem()
+                            {
+                                Name = appointmentTask.Task.Name
+                            };
+                            _context.TaskItem.Add(newTask);
+
+                            var savedTask = _context.TaskItem.OrderBy(e => e.Id).Last();
+                            if (savedTask != null)
+                            {
+                                appointmentTask.TaskId = savedTask.Id;
+                                appointmentTask.Task = savedTask;
+                            }
+                        }
                         _context.AppointmentTask.Add(appointmentTask);
-                        lastAppointment.AppointmentTasks.Add(appointmentTask);  
+                        savedAppointment.AppointmentTasks.Add(appointmentTask);
                     }
                 }
                 _context.SaveChanges();
@@ -131,6 +173,7 @@ namespace Zapp.Controllers
             catch
             {
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
+                viewModel = FillAppointmentViewModel(viewModel);
                 return View(viewModel);
             }
         }

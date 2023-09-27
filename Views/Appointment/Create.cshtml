@@ -9,12 +9,11 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <link rel="stylesheet" href="~/Zapp/wwwroot/css/styles.css" />
     <title>Create</title>
 </head>
 <body>
 
-    <h4>Appointment</h4>
+    <h4>Nieuwe Afspraak</h4>
     <hr />
     <form asp-action="Create">
         <div class="row">
@@ -40,66 +39,65 @@
             </div>
         </div>
         <div class="row">
-                <div class="appointment-table">
-                    <table class="table">
-                        <thead>
+            <div class="container">
+                <datalist id="task-list">
+                @foreach (var name in Model.AllTaskNames) {
+                    <option value="@name"></option>
+                }
+                </datalist>
+                <table class="table" id="appointment-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <span>#</span>
+                            </th>
+                            <th>
+                                <span>Taak</span>
+                            </th>
+                            <th>
+                                <span>Additionele Informatie</span>
+                            </th>
+                            <th>Uitgevoerd?</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int i = -1; }
+                        @foreach (var task in Model.AppointmentTasks) { i++;
                             <tr>
-                                <th>
-                                    <span>#</span>
-                                </th>
-                                <th>
-                                    <span>Taak</span>
-                                </th>
-                                <th>
-                                    <span>Additionele Informatie</span>
-                                </th>
-                                <th>Uitgevoerd?</th>
-                                <th></th>
+                                <td>
+                                    <span id="row-index">@(i+1)</span>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <input id="task-names" list="task-list" name="AppointmentTasks[@i].Task.Name" asp-for="@task.Task.Name" class="form-control" placeholder="Zoek taak"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <input id="task-info" name="AppointmentTasks[@i].AdditionalInfo" asp-for="@task.AdditionalInfo" type="text" class="form-control" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <input id="is-task-done" name="AppointmentTasks[@i].IsDone" type="checkbox" asp-for="@task.IsDone" disabled class="form-control" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <button id="addRow" onclick="addNewTask()">Add</button>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @{ int i = -1; }
-                            @foreach (var task in Model.AppointmentTasks) { i++;
-                                <tr>
-                                    <td>
-                                        <span>@(i+1)</span>
-                                    </td>
-                                    <td>
-                                        <div class="form-group">
-                                            <select name="AppointmentTasks[@i].TaskId" asp-for="@task.TaskId" asp-items="Model.AllTasksListItems" class="form-control">
-                                                <option value="" disabled selected>Zoek taak</option>
-                                                <option value="" disabled>Taken</option>
-                                            </select>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="form-group">
-                                            <input name="AppointmentTasks[@i].AdditionalInfo" asp-for="@task.AdditionalInfo" type="text" class="form-control" />
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="form-group">
-                                            <input name="AppointmentTasks[@i].IsDone" type="checkbox" asp-for="@task.IsDone" disabled class="form-control" />
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <button>Add</button>
-                                    </td>
-                                </tr>
-                            }
-                            
-                        </tbody>
-                    </table>
-                </div>
-                <div class="form-group">
-                    <input type="submit" value="Create" class="btn btn-primary" />
-                </div>
-
+                         }
+                    </tbody>
+                </table>
             </div>
-</form>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </div>
+    </form>
     <div>
         <a asp-action="Index">Back to List</a>
     </div>
-
 </body>
 </html>
