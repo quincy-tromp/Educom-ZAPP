@@ -24,15 +24,13 @@ function addTableRow(table, rowIndex) {
 
     cell4.innerHTML = "";
 
-    cell5.innerHTML =
-    "<button id=\"addRow\" onclick=\"addNewTask()\">Add</button>";
+    cell5.innerHTML ='<button id="addRow" onclick="addNewTask()">Add</button>';
 }
 
 function removeButton(table, rowIndex) {
+    if (rowIndex < 0) return;
     var row = table.rows[rowIndex];
-    var button = row.getElementById("addRow");
-    //var button = row.cells[4].getElementsByTagName("button");
-    button.remove();
+    var cell = row.cells[4].innerHTML = "";
 }
 
 function addNewTask() {
@@ -40,7 +38,7 @@ function addNewTask() {
     var table = document.getElementById("appointment-table").getElementsByTagName("tbody")[0];
     var rowIndex = table.rows.length;
     addTableRow(table, rowIndex);
-    removeButton(table, rowIndex);
+    removeButton(table, rowIndex-1);
 }
 
 //document.getElementById("addRow").addEventListener("click", addNewTask);
