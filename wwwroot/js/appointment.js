@@ -30,11 +30,13 @@ function addTableRow(table, rowIndex) {
 
 function removeButton(table, rowIndex) {
     var row = table.rows[rowIndex];
-    var button = row.cells[4].getElementsByTagName("button");
+    var button = row.getElementById("addRow");
+    //var button = row.cells[4].getElementsByTagName("button");
     button.remove();
 }
 
 function addNewTask() {
+    event.preventDefault();
     var table = document.getElementById("appointment-table").getElementsByTagName("tbody")[0];
     var rowIndex = table.rows.length;
     addTableRow(table, rowIndex);

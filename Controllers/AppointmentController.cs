@@ -185,31 +185,69 @@ namespace Zapp.Controllers
         }
 
         // GET: Appointment/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public ActionResult Edit(int? id)
         {
             if (id == null || _context.Appointment == null)
             {
                 return NotFound();
             }
 
-            var appointment = await _context.Appointment.FindAsync(id);
+            var appointment = _context.Appointment.Find(id);
             if (appointment == null)
             {
                 return NotFound();
             }
 
-            var customer = await _context.Customer.FindAsync(appointment.CustomerId);
+            var appointmentTasks = _context.AppointmentTask
+                .Where(e => e.AppointmentId == appointment.Id)
+                .ToList();
+            if (appointmentTasks == null)
+            {
+                return NotFound();
+            }
+            appointment.AppointmentTasks = appointmentTasks;
+
+            var customer = _context.Customer.Find(appointment.CustomerId);
             if (customer == null)
             {
                 return NotFound();
             }
+            appointment.Customer = customer;
 
             var customerTasks = _context.CustomerTask
                 .Where(e => e.CustomerId == customer.Id)
                 .ToList();
+            if (customerTasks == null)
+            {
+                return NotFound();
+            }
+            appointment.Customer.CustomerTasks = customerTasks;
 
-            AppointmentViewModel viewModel = new AppointmentViewModel() { Appointment = appointment };
-            viewModel.CustomerTasks = customerTasks.ToArray();
+            var employee = _context.Users.Find(appointment.EmployeeId);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            appointment.Employee = employee;
+
+            AppointmentViewModel viewModel = new AppointmentViewModel() {
+                Appointment = appointment,
+                CustomerTasks = appointment.Customer.CustomerTasks.ToArray()
+            };
+
+            int a = 0;
+            //var customer = await _context.Customer.FindAsync(appointment.CustomerId);
+            //if (customer == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //var customerTasks = _context.CustomerTask
+            //    .Where(e => e.CustomerId == customer.Id)
+            //    .ToList();
+            
+            //viewModel.CustomerTasks = customerTasks.ToArray();
+
             //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
             //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId);
             return View(viewModel);

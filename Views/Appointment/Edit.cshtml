@@ -20,18 +20,15 @@
             <div class="col-md-4">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
-                    <label asp-for="Appointment.Scheduled" class="control-label">Selecteer Datum en Tijd</label>
-                    <input asp-for="Appointment.Scheduled" class="form-control" />
+                    <input asp-for="Appointment.Scheduled" value="@Model.Appointment.Scheduled.ToString("yyyy-MM-ddTHH:mm")" class="form-control" />
                     <span asp-validation-for="Appointment.Scheduled" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="Appointment.CustomerId" class="control-label">Selecteer Klant</label>
                     <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems">
                         <option value="" disabled selected>Selecteer Klant</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label asp-for="Appointment.EmployeeId" class="control-label">Selecteer Medewerker</label>
                     <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems">
                         <option value="" disabled selected>Selecteer Medewerker</option>
                     </select>

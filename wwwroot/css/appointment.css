@@ -41,3 +41,7 @@
 .table select {
     width: 35%;
 }
+
+.form-group {
+    padding: 8px;
+}

@@ -19,8 +19,8 @@ namespace Zapp.Models
         [Column(TypeName = "varchar(128)")]
         public string Residence { get; set; }
 
-		public ICollection<Appointment> Appointments { get; } = new List<Appointment>();
-		public ICollection<CustomerTask> CustomerTasks { get; } = new List<CustomerTask>();
+		public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+		public ICollection<CustomerTask> CustomerTasks { get; set; } = new List<CustomerTask>();
 	}
 }
 

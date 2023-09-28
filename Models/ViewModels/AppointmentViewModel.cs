@@ -13,7 +13,7 @@ namespace Zapp.Models
 		public AppointmentTask[] AppointmentTasks { get; set; } = new AppointmentTask[] { new AppointmentTask() };
 
 		public CustomerTask[] CustomerTasks { get; set; } = new CustomerTask[] { };
- 
+
 
 		public List<Customer> AllCustomers { get; set; } = new();
 
@@ -21,6 +21,30 @@ namespace Zapp.Models
 
 		public List<TaskItem> AllTasks { get; set; } = new();
 
+
+		//public SelectListItem AppointmentEmployee
+  //      {
+		//	get
+		//	{
+		//		return new SelectListItem()
+		//		{
+		//			Text = Appointment.Employee.Name,
+		//			Value = Appointment.Employee.Id.ToString()
+		//		};
+		//	}
+		//}
+
+		//public SelectListItem AppointmentCustomer
+  //      {
+		//	get
+		//	{
+  //              return new SelectListItem()
+		//		{
+		//			Text = Appointment.Customer.Name,
+		//			Value = Appointment.Customer.Id.ToString()
+		//		};
+		//	}
+		//}
 
         public List<SelectListItem> AllCustomersListItems
 		{
