@@ -6,12 +6,15 @@ namespace Zapp.Models
 	public class CustomerTask
 	{
 		public int Id { get; set; }
+
         [Required]
         public int CustomerId { get; set; }
 		public Customer Customer { get; } = null!;
+
         [Required]
         public int TaskId { get; set; }
 		public TaskItem Task { get; } = null!;
+
         [Column(TypeName = "varchar(256)")]
         public string? AdditionalInfo { get; set; }
 	}

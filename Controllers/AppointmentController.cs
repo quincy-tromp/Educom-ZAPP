@@ -197,6 +197,14 @@ namespace Zapp.Controllers
             {
                 return NotFound();
             }
+            var scheduled = appointment.Scheduled;
+
+            AppointmentViewModel viewModel = new AppointmentViewModel()
+            {
+                Appointment = appointment
+            };
+            viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
+            viewModel.Appointment.Scheduled = scheduled;
 
             var appointmentTasks = _context.AppointmentTask
                 .Where(e => e.AppointmentId == appointment.Id)
@@ -205,14 +213,15 @@ namespace Zapp.Controllers
             {
                 return NotFound();
             }
-            appointment.AppointmentTasks = appointmentTasks;
+
+            viewModel.AppointmentTasks = appointmentTasks.ToArray();
 
             var customer = _context.Customer.Find(appointment.CustomerId);
             if (customer == null)
             {
                 return NotFound();
             }
-            appointment.Customer = customer;
+            viewModel.Appointment.Customer = customer;
 
             var customerTasks = _context.CustomerTask
                 .Where(e => e.CustomerId == customer.Id)
@@ -221,21 +230,16 @@ namespace Zapp.Controllers
             {
                 return NotFound();
             }
-            appointment.Customer.CustomerTasks = customerTasks;
+            viewModel.CustomerTasks = customerTasks.ToArray();
 
             var employee = _context.Users.Find(appointment.EmployeeId);
             if (employee == null)
             {
                 return NotFound();
             }
-            appointment.Employee = employee;
 
-            AppointmentViewModel viewModel = new AppointmentViewModel() {
-                Appointment = appointment,
-                CustomerTasks = appointment.Customer.CustomerTasks.ToArray()
-            };
+            viewModel.Appointment.Employee = employee;
 
-            int a = 0;
             //var customer = await _context.Customer.FindAsync(appointment.CustomerId);
             //if (customer == null)
             //{

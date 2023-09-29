@@ -45,3 +45,12 @@
 .form-group {
     padding: 8px;
 }
+
+.index-cell {
+    vertical-align: middle;
+}
+
+.center-cell {
+    vertical-align: middle;
+    text-align: center;
+}

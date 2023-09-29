@@ -20,16 +20,14 @@
             <div class="col-md-4">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
-                    <input asp-for="Appointment.Scheduled" value="@Model.Appointment.Scheduled.ToString("yyyy-MM-ddTHH:mm")" class="form-control" />
+                    <input type="datetime-local" asp-for="Appointment.Scheduled" value="@Model.Appointment.Scheduled.ToString("yyyy-MM-ddTHH:mm")" class="form-control" />
                     <span asp-validation-for="Appointment.Scheduled" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems">
-                        <option value="" disabled selected>Selecteer Klant</option>
-                    </select>
+                    <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems" disabled></select>
                 </div>
                 <div class="form-group">
-                    <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems">
+                    <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems" placeholder="Selecteer Medewerker">
                         <option value="" disabled selected>Selecteer Medewerker</option>
                     </select>
                 </div>
@@ -60,64 +58,35 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @{ int t = -1; }
-
-                        @if (Model.CustomerTasks != null)
-                        {
-                            @foreach (var task in Model.CustomerTasks)
-                            {
-                                t++;
-                                <tr>
-                                    <td>
-                                        <span id="row-index">@(t+1)</span>
-                                    </td>
-                                    <td>
-                                        <div class="form-group">
-                                            @*<input id="task-names" class="form-control" value="@task.Task.Name" />*@
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="form-group">
-                                            @*<input id="task-info" value="@task.AdditionalInfo" type="text" class="form-control" />*@
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="form-group">
-                                            @*<input id="is-task-done" type="checkbox" disabled class="form-control" />*@
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @*<button id="addRow" onclick="addNewTask()">Add</button>*@
-                                    </td>
-                                </tr>
-                            }
-                        }
-                        @foreach (var task in Model.AppointmentTasks)
-                        {
-                            <tr>
-                                <td>
-                                    <span id="row-index">@(t+1)</span>
-                                </td>
-                                <td>
-                                    <div class="form-group">
-                                        <input id="task-names" list="task-list" name="AppointmentTasks[@t].Task.Name" asp-for="@task.Task.Name" class="form-control" placeholder="Zoek taak" />
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group">
-                                        <input id="task-info" name="AppointmentTasks[@t].AdditionalInfo" asp-for="@task.AdditionalInfo" type="text" class="form-control" />
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group">
-                                        <input id="is-task-done" name="AppointmentTasks[@t].IsDone" type="checkbox" asp-for="@task.IsDone" disabled class="form-control" />
-                                    </div>
-                                </td>
-                                <td>
-                                    <button id="addRow" onclick="addNewTask()">Add</button>
-                                </td>
-                            </tr>
-                        }
+                    @for (var i = 0; i < Model.AppointmentTasks.Count(); i++)
+                    {
+                        <tr>
+                            <td class="index-cell">
+                                <span id="row-index">@(i + 1)</span>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <input id="task-names" list="task-list" name="AppointmentTasks[@i].Task.Name" asp-for="AppointmentTasks[i].Task.Name" class="form-control" placeholder="Zoek taak" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <input id="task-info" name="AppointmentTasks[@i].AdditionalInfo" asp-for="AppointmentTasks[i].AdditionalInfo" type="text" class="form-control" value="@Model.AppointmentTasks[i].AdditionalInfo"/>
+                                </div>
+                            </td>
+                            <td class="center-cell">
+                                <div class="form-group">
+                                    <input id="is-task-done" name="AppointmentTasks[@i].IsDone" type="checkbox" asp-for="AppointmentTasks[i].IsDone" value="@Model.AppointmentTasks[i].IsDone" />
+                                </div>
+                            </td>
+                            <td class="center-cell">
+                                @if (i == Model.AppointmentTasks.Count() - 1)
+                                {
+                                    <button class="" id="addRow" onclick="addNewTask()">Add</button>
+                                }
+                            </td>
+                        </tr>
+                    }
                     </tbody>
                 </table>
             </div>
