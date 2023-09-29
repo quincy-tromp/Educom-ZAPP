@@ -13,7 +13,7 @@
 </head>
 <body>
 
-    <h4>Appointment</h4>
+    <h4>Afspraak Bewerken</h4>
     <hr />
     <form asp-action="Edit">
         <div class="row">
@@ -43,7 +43,7 @@
                 </datalist>
                 <table class="table" id="appointment-table">
                     <thead>
-                        <tr>
+                        <tr id="header-row">
                             <th>
                                 <span>#</span>
                             </th>
@@ -80,10 +80,14 @@
                                 </div>
                             </td>
                             <td class="center-cell">
-                                @if (i == Model.AppointmentTasks.Count() - 1)
-                                {
-                                    <button class="" id="addRow" onclick="addNewTask()">Add</button>
-                                }
+                            @if (i < Model.AppointmentTasks.Count() - 1)
+                            {
+                                <button class="" id="delete-task" onclick="deleteTask(@i)"><i class="fa fa-trash-o btn-icon"></i></button>
+                            }
+                            @if (i == Model.AppointmentTasks.Count() - 1)
+                            {
+                                <button class="" id="add-new-task-btn" onclick="addNewTask(1)"><i class="fa fa-plus btn-icon"></i></button>
+                            }
                             </td>
                         </tr>
                     }
@@ -91,7 +95,7 @@
                 </table>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Opslaan" class="btn btn-primary" />
             </div>
         </div>
     </form>

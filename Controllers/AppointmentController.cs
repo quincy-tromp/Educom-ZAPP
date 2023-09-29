@@ -264,6 +264,7 @@ namespace Zapp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(AppointmentViewModel viewModel)
         {
+            //viewModel.AppointmentTasks = BuAppointment.dropEmptyAppointmentTasks(viewModel.AppointmentTasks);
             //if (id != appointment.Id)
             //{
             //    return NotFound();

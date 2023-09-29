@@ -40,6 +40,19 @@ namespace Zapp.Models.Business
                     .Where(e => e.EmployeeId == vm.Appointment.EmployeeId)
                     .Any(e => e.Scheduled == vm.Appointment.Scheduled));
         }
+
+        public static AppointmentTask[] dropEmptyAppointmentTasks(AppointmentTask[] appointmentTasks)
+        {
+            AppointmentTask[] newArray = new AppointmentTask[] { };
+            foreach (var appointmentTask in appointmentTasks)
+            {
+                if (appointmentTask.Task.Name != null)
+                {
+                    newArray.Append(appointmentTask);
+                }
+            }
+            return newArray;
+        }
 	}
 }
 

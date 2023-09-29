@@ -48,7 +48,7 @@
                 <span asp-validation-for="AppointmentTasks" class="text-danger"></span>
                 <table class="table" id="appointment-table">
                     <thead>
-                        <tr>
+                        <tr id="header-row">
                             <th>
                                 <span>#</span>
                             </th>
@@ -66,7 +66,7 @@
                         @for (var i = 0; i < Model.AppointmentTasks.Count(); i++)
                         {
                             <tr>
-                                <td>
+                                <td class="index-cell">
                                     <span id="row-index">@(i + 1)</span>
                                 </td>
                                 <td>
@@ -80,7 +80,16 @@
                                     </div>
                                 </td>
                                 <td></td>
-                                <td><button id="addRow" onclick="addNewTask()">Add</button></td>
+                                <td class="center-cell">
+                                @if (i < Model.AppointmentTasks.Count() - 1)
+                                {
+                                    <button class="" id="delete-task" onclick="deleteTask(@i)"><i class="fa fa-trash-o btn-icon"></i></button>
+                                }
+                                @if (i == Model.AppointmentTasks.Count() - 1)
+                                {
+                                    <button class="" id="add-new-task-btn" onclick="addNewTask()"><i class="fa fa-plus btn-icon"></i></button>
+                                }
+                                </td>
                             </tr>
                         }
                     </tbody>

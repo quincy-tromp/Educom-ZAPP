@@ -54,3 +54,30 @@
     vertical-align: middle;
     text-align: center;
 }
+
+#header-row:hover {
+    background-color: transparent;
+}
+
+#disabled-row, #disabled-field {
+    color: red;
+    text-decoration: line-through;
+}
+
+#add-new-task-btn {
+    background-color: #0158a4;
+}
+
+#delete-task {
+    background-color: red;
+}
+
+.btn-icon {
+    font-size: 24px;
+    color: white;
+    vertical-align: middle;
+}
+
+.table button {
+    width: 48px;
+}
