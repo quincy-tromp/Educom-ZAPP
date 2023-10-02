@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Zapp.Data;
 
@@ -19,19 +20,7 @@ namespace Zapp.Models.Business
 		{
             bool customerEmpty = viewModel.Appointment.CustomerId == 0;
             bool employeeEmpty = viewModel.Appointment.EmployeeId == null;
-            return customerEmpty && employeeEmpty && IsAppointmentTasksEmpty(viewModel.AppointmentTasks);
-        }
-
-        public static bool IsAppointmentTasksEmpty(AppointmentTask[] appointmentTasks)
-        {
-            foreach (var appointmentTask in appointmentTasks)
-            {
-                if (appointmentTask.Task.Name != null)
-                {
-                    return false;
-                }
-            }
-            return true;
+            return customerEmpty || employeeEmpty;
         }
 
         public static bool IsEmployeeUnavailable(ApplicationDbContext context, AppointmentViewModel vm)
@@ -41,18 +30,43 @@ namespace Zapp.Models.Business
                     .Any(e => e.Scheduled == vm.Appointment.Scheduled));
         }
 
-        public static AppointmentTask[] dropEmptyAppointmentTasks(AppointmentTask[] appointmentTasks)
+        /// <summary>
+        /// Filters out empty appointmentTasks
+        /// </summary>
+        /// <param name="appointmentTasks"></param>
+        /// <returns></returns>
+        public static AppointmentTask[] filterEmptyAppointmentTasks(AppointmentTask[] appointmentTasks)
         {
-            AppointmentTask[] newArray = new AppointmentTask[] { };
-            foreach (var appointmentTask in appointmentTasks)
-            {
-                if (appointmentTask.Task.Name != null)
-                {
-                    newArray.Append(appointmentTask);
-                }
-            }
-            return newArray;
+            return appointmentTasks.Where(e => e.Task.Name != null).ToArray();
         }
-	}
+
+        private class TaskEqualityComparer : IEqualityComparer<AppointmentTask>
+        {
+            public bool Equals(AppointmentTask x, AppointmentTask y)
+            {
+                if (x == null && y == null)
+                    return true;
+                if (x == null || y == null)
+                    return false;
+
+                return x.Task.Name == y.Task.Name;
+            }
+
+            public int GetHashCode(AppointmentTask obj)
+            {
+                return obj.Task.Name.GetHashCode();
+            }
+        }
+
+        /// <summary>
+        /// Filters out duplicate appointmentTasks
+        /// </summary>
+        /// <param name="appointmentTasks"></param>
+        /// <returns></returns>
+        public static AppointmentTask[] filterDuplicateAppointmentTasks(AppointmentTask[] appointmentTasks)
+        {
+            return appointmentTasks.Distinct(new TaskEqualityComparer()).ToArray();
+        }
+    }
 }
 

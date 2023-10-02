@@ -19,6 +19,9 @@ namespace Zapp.Models
         public string? AdditionalInfo { get; set; }
 
 		public bool IsDone { get; set; } = false;
+
+		[NotMapped]
+		public bool IsDeleted { get; set; } = false;
 	}
 }
 

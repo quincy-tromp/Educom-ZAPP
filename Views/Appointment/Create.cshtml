@@ -89,6 +89,7 @@
                                 {
                                     <button class="" id="add-new-task-btn" onclick="addNewTask()"><i class="fa fa-plus btn-icon"></i></button>
                                 }
+                                    <input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" value="False" />
                                 </td>
                             </tr>
                         }
@@ -100,8 +101,5 @@
             </div>
         </div>
     </form>
-    <div>
-        <a asp-action="Index">Back to List</a>
-    </div>
 </body>
 </html>

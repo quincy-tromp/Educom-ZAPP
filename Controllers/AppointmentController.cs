@@ -98,9 +98,10 @@ namespace Zapp.Controllers
                     viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
                     return View(viewModel);
                 }
-                if (BuAppointment.IsAppointmentTasksEmpty(viewModel.AppointmentTasks))
+                viewModel.AppointmentTasks = BuAppointment.filterEmptyAppointmentTasks(viewModel.AppointmentTasks);
+                if (viewModel.AppointmentTasks.Count() == 0)
                 {
-                    ModelState.AddModelError("AppointmentTasks", "Voeg een taak toe.");
+                    ModelState.AddModelError("AppointmentTasks", "Taken is leeg. Voeg een taak toe.");
                     viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
                     return View(viewModel);
                 }
@@ -174,7 +175,7 @@ namespace Zapp.Controllers
                     }
                 }
                 _context.SaveChanges();
-                return RedirectToAction(nameof(Details), new { Id = viewModel.Appointment.Id });
+                return RedirectToAction(nameof(Index));
             }
             catch
             {
@@ -291,8 +292,109 @@ namespace Zapp.Controllers
             //    return RedirectToAction(nameof(Index));
             //}
             //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
-            //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId);
-            return View(viewModel);
+            //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId
+            //
+
+
+            
+            try
+            {
+                //if (BuAppointment.IsEmployeeUnavailable(_context, viewModel))
+                //{
+                //    ModelState.AddModelError("Appointment.Scheduled", "Deze medewerker is niet beschikbaar op de gekozen tijdstip.");
+                //    //viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
+                //    return View(viewModel);
+                //}
+                viewModel.AppointmentTasks = BuAppointment.filterEmptyAppointmentTasks(viewModel.AppointmentTasks);
+                viewModel.AppointmentTasks = BuAppointment.filterDuplicateAppointmentTasks(viewModel.AppointmentTasks);
+                if (viewModel.AppointmentTasks.Count() == 0)
+                {
+                    ModelState.AddModelError("AppointmentTasks", "Taken is leeg. Voeg een taak toe.");
+                    //viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
+                    return View(viewModel);
+                }
+
+                var appointment = _context.Appointment.Find(viewModel.Appointment.Id);
+                if (appointment == null)
+                {
+                    return NotFound();
+                }
+                appointment.Scheduled = viewModel.Appointment.Scheduled;
+
+                var employee = _context.Users.Find(viewModel.Appointment.EmployeeId);
+                if (employee == null)
+                {
+                    return NotFound();
+                }
+                appointment.EmployeeId = employee.Id;
+                appointment.Employee = employee;
+
+                var scheduledTasks = _context.AppointmentTask
+                    .Where(e => e.AppointmentId == appointment.Id)
+                    .ToList()
+                    .ToArray();
+                if (scheduledTasks == null)
+                {
+                    return NotFound();
+                }
+
+                foreach (var appointmentTask in viewModel.AppointmentTasks)
+                {
+
+                    if (appointmentTask.IsDeleted)
+                    {
+                        _context.AppointmentTask.Remove(appointmentTask);
+                    }
+                    else
+                    {
+                        TaskItem? task = null;
+
+                        task = _context.TaskItem
+                            .Where(e => e.Name == appointmentTask.Task.Name)
+                            .FirstOrDefault();
+
+                        if (task == null)
+                        {
+                            TaskItem newTaskItem = new TaskItem() { Name = appointmentTask.Task.Name };
+                            _context.TaskItem.Add(newTaskItem);
+                            _context.SaveChanges();
+
+                            task = _context.TaskItem.OrderBy(e => e.Id).Last();
+                            if (task == null)
+                            {
+                                return NotFound();
+                            }
+                        }
+                        appointmentTask.TaskId = task.Id;
+                        appointmentTask.Task = task;
+
+                        bool foundMatch = false;
+                        foreach (var scheduledTask in scheduledTasks)
+                        {
+                            if (appointmentTask.TaskId == scheduledTask.TaskId)
+                            {
+                                scheduledTask.IsDone = appointmentTask.IsDone;
+                                scheduledTask.AdditionalInfo = appointmentTask.AdditionalInfo;
+                                appointment.AppointmentTasks.Add(scheduledTask);
+                                foundMatch = true;
+                                break;
+                            }
+                        }
+                        if (!foundMatch)
+                        {
+                            appointment.AppointmentTasks.Add(appointmentTask);
+                        }
+                    }
+                }
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
+                return View(viewModel);
+            }
+
         }
 
         // GET: Appointment/Delete/5

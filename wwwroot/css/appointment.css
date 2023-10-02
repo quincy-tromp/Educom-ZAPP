@@ -81,3 +81,20 @@
 .table button {
     width: 48px;
 }
+
+#create-app-btn {
+    width: 300px;
+    background-color: #005fab;
+    border-radius: 25px;
+    height: 50px;
+}
+
+#create-app-btn a {
+    color: white;
+    text-decoration: none;
+    font-size: 24px;
+}
+
+.btn-action {
+    width: 125px;
+}

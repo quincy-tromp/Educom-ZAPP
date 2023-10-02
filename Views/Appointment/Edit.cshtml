@@ -16,6 +16,7 @@
     <h4>Afspraak Bewerken</h4>
     <hr />
     <form asp-action="Edit">
+        <input type="hidden" asp-for="Appointment.Id" value="@Model.Appointment.Id" />
         <div class="row">
             <div class="col-md-4">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -25,6 +26,7 @@
                 </div>
                 <div class="form-group">
                     <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems" disabled></select>
+                    <input type="hidden" asp-for="Appointment.CustomerId" value="@Model.Appointment.CustomerId" />
                 </div>
                 <div class="form-group">
                     <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems" placeholder="Selecteer Medewerker">
@@ -58,49 +60,51 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @for (var i = 0; i < Model.AppointmentTasks.Count(); i++)
-                    {
-                        <tr>
-                            <td class="index-cell">
-                                <span id="row-index">@(i + 1)</span>
-                            </td>
-                            <td>
-                                <div class="form-group">
-                                    <input id="task-names" list="task-list" name="AppointmentTasks[@i].Task.Name" asp-for="AppointmentTasks[i].Task.Name" class="form-control" placeholder="Zoek taak" />
-                                </div>
-                            </td>
-                            <td>
-                                <div class="form-group">
-                                    <input id="task-info" name="AppointmentTasks[@i].AdditionalInfo" asp-for="AppointmentTasks[i].AdditionalInfo" type="text" class="form-control" value="@Model.AppointmentTasks[i].AdditionalInfo"/>
-                                </div>
-                            </td>
-                            <td class="center-cell">
-                                <div class="form-group">
-                                    <input id="is-task-done" name="AppointmentTasks[@i].IsDone" type="checkbox" asp-for="AppointmentTasks[i].IsDone" value="@Model.AppointmentTasks[i].IsDone" />
-                                </div>
-                            </td>
-                            <td class="center-cell">
-                            @if (i < Model.AppointmentTasks.Count() - 1)
-                            {
-                                <button class="" id="delete-task" onclick="deleteTask(@i)"><i class="fa fa-trash-o btn-icon"></i></button>
-                            }
-                            @if (i == Model.AppointmentTasks.Count() - 1)
-                            {
-                                <button class="" id="add-new-task-btn" onclick="addNewTask(1)"><i class="fa fa-plus btn-icon"></i></button>
-                            }
-                            </td>
-                        </tr>
-                    }
+                        @for (var i = 0; i < Model.AppointmentTasks.Count(); i++)
+                        {
+                            <tr>
+                                <td class="index-cell">
+                                    <span id="row-index">@(i + 1)</span>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <input id="task-names" list="task-list" name="AppointmentTasks[@i].Task.Name" asp-for="AppointmentTasks[i].Task.Name" class="form-control" placeholder="Zoek taak" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <input id="task-info" name="AppointmentTasks[@i].AdditionalInfo" asp-for="AppointmentTasks[i].AdditionalInfo" type="text" class="form-control" value="@Model.AppointmentTasks[i].AdditionalInfo" />
+                                    </div>
+                                </td>
+                                <td class="center-cell">
+                                    <div class="form-group">
+                                        <input id="is-task-done" name="AppointmentTasks[@i].IsDone" type="checkbox" asp-for="AppointmentTasks[i].IsDone" value="@Model.AppointmentTasks[i].IsDone" />
+                                    </div>
+                                </td>
+                                <td class="center-cell">
+                                    @if (i < Model.AppointmentTasks.Count() - 1)
+                                    {
+                                        <button class="" id="delete-task" onclick="deleteTask(@i)"><i class="fa fa-trash-o btn-icon"></i></button>
+                                    }
+                                    @if (i == Model.AppointmentTasks.Count() - 1)
+                                    {
+                                        <button class="" id="add-new-task-btn" onclick="addNewTask(1)"><i class="fa fa-plus btn-icon"></i></button>
+                                    }
+                                    <input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" value="False" />
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
             <div class="form-group">
-                <input type="submit" value="Opslaan" class="btn btn-primary" />
+                <input type="submit" value="Opslaan" class="btn btn-primary btn-action" />
             </div>
         </div>
     </form>
-    <div>
-        <a asp-action="Index">Back to List</a>
-    </div>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Appointment.Id" />
+        <input type="submit" value="Verwijderen" class="btn btn-danger btn-action" /> 
+    </form>
 </body>
 </html>

@@ -13,25 +13,19 @@
 </head>
 <body>
 <p>
-    <a asp-action="Create">Afspraak Toevoegen</a>
+    <button id="create-app-btn"><a asp-action="Create">Afspraak Toevoegen</a></button>
 </p>
 <table class="table">
     <thead>
-        <tr>
+        <tr id="header-row">
             <th>
-                @Html.DisplayNameFor(model => model.Customer)
+                <span>Klant</span>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Employee)
+                <span>Medewerker</span>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Scheduled)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CheckedIn)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CheckedOut)
+                <span>Datum & Tijd</span>
             </th>
             <th></th>
         </tr>
@@ -49,14 +43,7 @@
                 @Html.DisplayFor(modelItem => item.Scheduled)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CheckedIn)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CheckedOut)
-            </td>
-            <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>

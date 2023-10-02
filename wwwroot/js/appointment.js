@@ -39,12 +39,14 @@ function addTableRow(table, rowIndex, flag) {
             '<input id="is-task-done" name="AppointmentTasks[@i].IsDone" type="checkbox" asp-for="AppointmentTasks[i].IsDone" value="@Model.AppointmentTasks[i].IsDone" />' +
         '</div>';
         cell5.innerHTML =
-            '<button id="add-new-task-btn" onclick="addNewTask(1)"><i class="fa fa-plus btn-icon"></i></button>';
+        '<button id="add-new-task-btn" onclick="addNewTask(1)"><i class="fa fa-plus btn-icon"></i></button>' +
+        '<input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" value="False" />';
     }
     else {
         cell4.innerHTML = '';
         cell5.innerHTML =
-        '<button id="add-new-task-btn" onclick="addNewTask()"><i class="fa fa-plus btn-icon"></i></button>';
+        '<button id="add-new-task-btn" onclick="addNewTask()"><i class="fa fa-plus btn-icon"></i></button>' +
+        '<input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" value="False" />';
     }
 }
 
@@ -52,17 +54,22 @@ function transformButton(table, rowIndex) {
     if (rowIndex < 0) return;
     var row = table.rows[rowIndex];
     var cell = row.cells[4].innerHTML =
-    '<button id="delete-task" onclick="deleteTask(' + rowIndex + ')"><i class="fa fa-trash-o btn-icon"></i></button>';
+    '<button id="delete-task" onclick="deleteTask(' + rowIndex + ')"><i class="fa fa-trash-o btn-icon"></i></button>' +
+    '<input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" value="False" />';
 }
 
 function deleteTask(rowIndex) {
     event.preventDefault();
     var table = document.getElementById("appointment-table").getElementsByTagName("tbody")[0];
     var row = table.rows[rowIndex];
-    row.setAttribute("id", "disabled-row")
+    row.setAttribute("id", "disabled-row");
     var inputFields = row.getElementsByTagName("input");
+    //var hiddenInput = inputFields.getElementById("delete-task");
+    //hiddenInput.setAttribute("value", "true");
     for (var i = 0; i < inputFields.length; i++) {
-        //inputFields[i].setAttribute("value", "")
+        if (inputFields[i].id == "delete-task") {
+            inputFields[i].setAttribute("value", "@true");
+        }
         inputFields[i].setAttribute("id", "disabled-field")
         inputFields[i].disabled = true;
     }
