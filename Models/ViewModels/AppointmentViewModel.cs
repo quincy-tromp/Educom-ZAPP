@@ -21,31 +21,6 @@ namespace Zapp.Models
 
 		public List<TaskItem> AllTasks { get; set; } = new();
 
-
-		//public SelectListItem AppointmentEmployee
-  //      {
-		//	get
-		//	{
-		//		return new SelectListItem()
-		//		{
-		//			Text = Appointment.Employee.Name,
-		//			Value = Appointment.Employee.Id.ToString()
-		//		};
-		//	}
-		//}
-
-		//public SelectListItem AppointmentCustomer
-  //      {
-		//	get
-		//	{
-  //              return new SelectListItem()
-		//		{
-		//			Text = Appointment.Customer.Name,
-		//			Value = Appointment.Customer.Id.ToString()
-		//		};
-		//	}
-		//}
-
         public List<SelectListItem> AllCustomersListItems
 		{
 			get

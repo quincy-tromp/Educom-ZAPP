@@ -19,13 +19,13 @@
     <thead>
         <tr id="header-row">
             <th>
+                <span>Datum & Tijd</span>
+            </th>
+            <th>
                 <span>Klant</span>
             </th>
             <th>
                 <span>Medewerker</span>
-            </th>
-            <th>
-                <span>Datum & Tijd</span>
             </th>
             <th></th>
         </tr>
@@ -34,17 +34,16 @@
 @foreach (var item in Model) {
         <tr>
             <td>
+                @Html.DisplayFor(modelItem => item.Scheduled)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Customer.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Employee.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Scheduled)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
             </td>
         </tr>
 }

@@ -40,13 +40,13 @@ function addTableRow(table, rowIndex, flag) {
         '</div>';
         cell5.innerHTML =
         '<button id="add-new-task-btn" onclick="addNewTask(1)"><i class="fa fa-plus btn-icon"></i></button>' +
-        '<input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" value="False" />';
+        '<input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" />';
     }
     else {
         cell4.innerHTML = '';
         cell5.innerHTML =
         '<button id="add-new-task-btn" onclick="addNewTask()"><i class="fa fa-plus btn-icon"></i></button>' +
-        '<input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" value="False" />';
+        '<input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" />';
     }
 }
 
@@ -55,7 +55,7 @@ function transformButton(table, rowIndex) {
     var row = table.rows[rowIndex];
     var cell = row.cells[4].innerHTML =
     '<button id="delete-task" onclick="deleteTask(' + rowIndex + ')"><i class="fa fa-trash-o btn-icon"></i></button>' +
-    '<input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" value="False" />';
+    '<input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" />';
 }
 
 function deleteTask(rowIndex) {
@@ -68,7 +68,7 @@ function deleteTask(rowIndex) {
     //hiddenInput.setAttribute("value", "true");
     for (var i = 0; i < inputFields.length; i++) {
         if (inputFields[i].id == "delete-task") {
-            inputFields[i].setAttribute("value", "@true");
+            inputFields[i].setAttribute("value", "true");
         }
         inputFields[i].setAttribute("id", "disabled-field")
         inputFields[i].disabled = true;

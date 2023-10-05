@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Zapp.Data;
 using Zapp.Models;
@@ -23,7 +18,10 @@ namespace Zapp.Controllers
         // GET: Appointment
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Appointment.Include(a => a.Customer).Include(a => a.Employee);
+            var applicationDbContext = _context.Appointment
+                .Include(a => a.Customer)
+                .Include(a => a.Employee)
+                .OrderBy(a => a.Scheduled);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -50,348 +48,352 @@ namespace Zapp.Controllers
         // GET: Appointment/Create
         public IActionResult Create()
         {
-            //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id");
-            //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id");
-
             AppointmentViewModel viewModel = new AppointmentViewModel() { Appointment = new Appointment() };
-            viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
+            viewModel = AppointmentHelper.FillViewModel(_context, viewModel, true);
             return View(viewModel);
         }
-        // OLD CODE
-        //private AppointmentViewModel FillAppointmentViewModel(AppointmentViewModel viewModel)
-        //{
-        //    viewModel.Appointment.Scheduled = DateTime.Today;
-        //    viewModel.AllCustomers = _context.Customer.ToList();
-        //    viewModel.AllEmployees = _context.Users.ToList();
-        //    viewModel.AllTasks = _context.TaskItem.ToList();
-        //    return viewModel;
-        //}
 
         // POST: Appointment/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(AppointmentViewModel viewModel)
         {
-            //if (ModelState.IsValid)
-            //{
-            //    _context.Add(appointment);
-            //    await _context.SaveChangesAsync();
-            //    return RedirectToAction(nameof(Index));
-            //}
-            //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
-            //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId);
-            //return View(appointment);
-
             try
             {
-                if (BuAppointment.IsAppointmentEmpty(viewModel))
+                ModelState.Remove("Appointment.Customer");
+                ModelState.Remove("Appointment.Employee");
+                for (int i = 0; i < viewModel.AppointmentTasks.Count(); i++)
                 {
-                    ModelState.AddModelError("ModelOnly", "Deze afspraak is leeg.");
-                    viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
+                    ModelState.Remove($"AppointmentTasks[{i}].Appointment");
+                }
+
+                viewModel.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(viewModel.AppointmentTasks);
+                viewModel.AppointmentTasks = AppointmentHelper.removeDuplicateAppointmentTasks(viewModel.AppointmentTasks);
+
+                // Validate Appointment.Customer 
+                if (viewModel.Appointment.CustomerId == 0)
+                {
+                    ModelState.AddModelError("Appointment.CustomerId", "Kies een klant.");
+                }
+                // Validate Appointment.Employee
+                if (viewModel.Appointment.EmployeeId == null)
+                {
+                    ModelState.AddModelError("Appointment.EmployeeId", "Kies een medewerker.");
+                }
+                if (!ModelState.IsValid)
+                {
+                    viewModel = AppointmentHelper.FillViewModel(_context, viewModel, true);
                     return View(viewModel);
                 }
-                if (BuAppointment.IsEmployeeUnavailable(_context, viewModel))
+                //Validate Appointment.Scheduled
+                if (!AppointmentValidator.IsValidDateTime(viewModel.Appointment.Scheduled))
                 {
-                    ModelState.AddModelError("Appointment.Scheduled", "Deze medewerker is niet beschikbaar op de gekozen tijdstip.");
-                    viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
+                    ModelState.AddModelError("Appointment.Scheduled", "De gekozen tijd en/of datum is niet beschikbaar.");
+                }
+                if (!AppointmentValidator.IsEmployeeAvailable(_context, viewModel.Appointment.EmployeeId, viewModel.Appointment.Scheduled, null))
+                {
+                    ModelState.AddModelError("Appointment.Scheduled", "Dit medewerker is niet beschikbaar op de gekozen tijdstip.");
+                }
+                if (!ModelState.IsValid)
+                {
+                    viewModel = AppointmentHelper.FillViewModel(_context, viewModel, true);
                     return View(viewModel);
                 }
-                viewModel.AppointmentTasks = BuAppointment.filterEmptyAppointmentTasks(viewModel.AppointmentTasks);
-                if (viewModel.AppointmentTasks.Count() == 0)
+                // Validate AppointmentTasks
+                if (viewModel.AppointmentTasks.Count() == 0 || viewModel.AppointmentTasks == null)
                 {
-                    ModelState.AddModelError("AppointmentTasks", "Taken is leeg. Voeg een taak toe.");
-                    viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
+                    ModelState.AddModelError("AppointmentTasks", "Voeg een taak toe.");
+                }
+                if (!ModelState.IsValid)
+                {
+                    viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
                     return View(viewModel);
                 }
 
-
-                Appointment newAppointment = viewModel.Appointment;
-                var customer = _context.Customer.Find(newAppointment.CustomerId);
-                if (customer != null)
-                {
-                    newAppointment.Customer = customer;
-                }
-                var employee = _context.Users.Find(newAppointment.EmployeeId);
-                if (employee != null) {
-                    newAppointment.Employee = employee;
-                }
-                _context.Appointment.Add(newAppointment);
+                // Process Appointment
+                _context.Appointment.Add(viewModel.Appointment);
                 _context.SaveChanges();
 
+                var theAppointment = _context.Appointment
+                    .Include(e => e.Customer)
+                    .Include(e => e.Customer.CustomerTasks)
+                    .OrderBy(e => e.Id).Last();
 
-                var appointment = _context.Appointment.OrderBy(e => e.Id).Last();
-                if (appointment != null)
+                if (theAppointment == null)
                 {
-                    foreach (var appointmentTask in viewModel.AppointmentTasks)
+                    throw new Exception("Something went wrong while retrieving the appointment from the database");
+                }
+
+                // Process AppointmentTasks
+                foreach (var appointmentTask in viewModel.AppointmentTasks)
+                {
+                    appointmentTask.AppointmentId = theAppointment.Id;
+
+                    var taskItem = _context.TaskItem
+                        .Where(e => e.Name == appointmentTask.Task.Name)
+                        .FirstOrDefault();
+
+                    if (taskItem == null)
                     {
-                        appointmentTask.AppointmentId = appointment.Id;
-                        appointmentTask.Appointment = appointment;
-
-                        var taskItem = _context.TaskItem
-                            .Where(e => e.Name == appointmentTask.Task.Name)
-                            .FirstOrDefault();
-                        if (taskItem != null)
-                        {
-                            appointmentTask.TaskId = taskItem.Id;
-                            appointmentTask.Task = taskItem;
-                        }
-                        else
-                        {
-                            TaskItem newTaskItem = new TaskItem() { Name = appointmentTask.Task.Name };
-                            _context.TaskItem.Add(newTaskItem);
-                            _context.SaveChanges();
-
-                            var task = _context.TaskItem.OrderBy(e => e.Id).Last();
-                            if (task != null)
-                            {
-                                appointmentTask.TaskId = task.Id;
-                                appointmentTask.Task = task;
-                            }
-                        }
-                        _context.AppointmentTask.Add(appointmentTask);
-                        appointment.AppointmentTasks.Add(appointmentTask);
+                        TaskItem newTaskItem = new TaskItem() { Name = appointmentTask.Task.Name };
+                        _context.TaskItem.Add(newTaskItem);
                         _context.SaveChanges();
-                    }
+                        var task = _context.TaskItem.OrderBy(e => e.Id).Last();
 
-                    var customerTasks = appointment.Customer.CustomerTasks;
-                    if (customerTasks != null)
-                    {
-                        foreach (var customerTask in customerTasks)
+                        if (task == null)
                         {
-                            var appointmentTask = new AppointmentTask()
-                            {
-                                AppointmentId = appointment.Id,
-                                Appointment = appointment,
-                                TaskId = customerTask.TaskId,
-                                Task = customerTask.Task,
-                                AdditionalInfo = customerTask.AdditionalInfo
-                            };
-                            _context.AppointmentTask.Add(appointmentTask);
-                            appointment.AppointmentTasks.Add(appointmentTask);
-                            _context.SaveChanges();
+                            throw new Exception("Something went wrong while retrieving the task from the database.");
                         }
+
+                        appointmentTask.TaskId = task.Id;
                     }
+                    else
+                    {
+                        appointmentTask.TaskId = taskItem.Id;
+                    }
+                    _context.AppointmentTask.Add(appointmentTask);
+                    _context.SaveChanges();
                 }
-                _context.SaveChanges();
+
+                // Process customerTasks
+                var customerTasks = theAppointment.Customer.CustomerTasks;
+                //var customerTasks = _context.CustomerTask.Where(e => e.CustomerId == theAppointment.CustomerId);
+
+                if (customerTasks != null)
+                {
+                    foreach (var customerTask in customerTasks)
+                    {
+                        var appointmentTask = new AppointmentTask()
+                        {
+                            AppointmentId = theAppointment.Id,
+                            TaskId = customerTask.TaskId,
+                            AdditionalInfo = customerTask.AdditionalInfo
+                        };
+                        _context.AppointmentTask.Add(appointmentTask);
+                    }
+                    _context.SaveChanges();
+                }
+
                 return RedirectToAction(nameof(Index));
             }
+
             catch
             {
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
-                viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
+                viewModel = AppointmentHelper.FillViewModel(_context, viewModel, true);
                 return View(viewModel);
             }
         }
 
-        // GET: Appointment/Edit/5
-        public ActionResult Edit(int? id)
+        private AppointmentViewModel getAppointmentForEdit(int id)
         {
-            if (id == null || _context.Appointment == null)
-            {
-                return NotFound();
-            }
-
             var appointment = _context.Appointment.Find(id);
             if (appointment == null)
             {
-                return NotFound();
+                throw new Exception("Something went wrong while retrieving the appointment from the database.");
             }
-            var scheduled = appointment.Scheduled;
 
             AppointmentViewModel viewModel = new AppointmentViewModel()
             {
                 Appointment = appointment
             };
-            viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
-            viewModel.Appointment.Scheduled = scheduled;
+            viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
+
+            var customer = _context.Customer.Find(appointment.CustomerId);
+            if (customer == null)
+            {
+                throw new Exception("Something went wrong while retrieving the customer from the database.");
+            }
+            viewModel.Appointment.Customer = customer;
+
+            var employee = _context.Users.Find(appointment.EmployeeId);
+            if (employee == null)
+            {
+                throw new Exception("Something went wrong while retrieving the employee from the database.");
+            }
+            viewModel.Appointment.Employee = employee;
 
             var appointmentTasks = _context.AppointmentTask
                 .Where(e => e.AppointmentId == appointment.Id)
                 .ToList();
             if (appointmentTasks == null)
             {
-                return NotFound();
+                throw new Exception("Something went wrong while retrieving the appointmentTasks from the database.");
             }
-
             viewModel.AppointmentTasks = appointmentTasks.ToArray();
-
-            var customer = _context.Customer.Find(appointment.CustomerId);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-            viewModel.Appointment.Customer = customer;
 
             var customerTasks = _context.CustomerTask
                 .Where(e => e.CustomerId == customer.Id)
                 .ToList();
-            if (customerTasks == null)
+            if (customerTasks != null)
+            {
+                viewModel.CustomerTasks = customerTasks.ToArray();
+            }
+
+            return viewModel;
+        }
+
+        // GET: Appointment/Edit/5
+        public ActionResult Edit(int id)
+        {
+            if (_context.Appointment == null)
             {
                 return NotFound();
             }
-            viewModel.CustomerTasks = customerTasks.ToArray();
 
-            var employee = _context.Users.Find(appointment.EmployeeId);
-            if (employee == null)
-            {
-                return NotFound();
-            }
+            AppointmentViewModel viewModel = getAppointmentForEdit(id);
 
-            viewModel.Appointment.Employee = employee;
-
-            //var customer = await _context.Customer.FindAsync(appointment.CustomerId);
-            //if (customer == null)
-            //{
-            //    return NotFound();
-            //}
-
-            //var customerTasks = _context.CustomerTask
-            //    .Where(e => e.CustomerId == customer.Id)
-            //    .ToList();
-            
-            //viewModel.CustomerTasks = customerTasks.ToArray();
-
-            //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
-            //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId);
             return View(viewModel);
         }
 
         // POST: Appointment/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(AppointmentViewModel viewModel)
+        public async Task<ActionResult> Edit(AppointmentViewModel viewModel)
         {
-            //viewModel.AppointmentTasks = BuAppointment.dropEmptyAppointmentTasks(viewModel.AppointmentTasks);
-            //if (id != appointment.Id)
-            //{
-            //    return NotFound();
-            //}
-
-            //if (ModelState.IsValid)
-            //{
-            //    try
-            //    {
-            //        _context.Update(appointment);
-            //        await _context.SaveChangesAsync();
-            //    }
-            //    catch (DbUpdateConcurrencyException)
-            //    {
-            //        if (!AppointmentExists(appointment.Id))
-            //        {
-            //            return NotFound();
-            //        }
-            //        else
-            //        {
-            //            throw;
-            //        }
-            //    }
-            //    return RedirectToAction(nameof(Index));
-            //}
-            //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "Id", "Id", appointment.CustomerId);
-            //ViewData["EmployeeId"] = new SelectList(_context.Users, "Id", "Id", appointment.EmployeeId
-            //
-
-
-            
             try
             {
-                //if (BuAppointment.IsEmployeeUnavailable(_context, viewModel))
-                //{
-                //    ModelState.AddModelError("Appointment.Scheduled", "Deze medewerker is niet beschikbaar op de gekozen tijdstip.");
-                //    //viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
-                //    return View(viewModel);
-                //}
-                viewModel.AppointmentTasks = BuAppointment.filterEmptyAppointmentTasks(viewModel.AppointmentTasks);
-                viewModel.AppointmentTasks = BuAppointment.filterDuplicateAppointmentTasks(viewModel.AppointmentTasks);
-                if (viewModel.AppointmentTasks.Count() == 0)
+                ModelState.Remove("Appointment.Customer");
+                ModelState.Remove("Appointment.Employee");
+                for (int i = 0; i < viewModel.AppointmentTasks.Count(); i++)
                 {
-                    ModelState.AddModelError("AppointmentTasks", "Taken is leeg. Voeg een taak toe.");
-                    //viewModel = BuAppointment.FillAppointmentViewModel(_context, viewModel);
+                    ModelState.Remove($"AppointmentTasks[{i}].Appointment");
+                }
+
+                viewModel.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(viewModel.AppointmentTasks);
+                viewModel.AppointmentTasks = AppointmentHelper.removeDuplicateAppointmentTasks(viewModel.AppointmentTasks);
+
+                // Validate Appointment.Customer 
+                if (viewModel.Appointment.CustomerId == 0)
+                {
+                    ModelState.AddModelError("Appointment.CustomerId", "Kies een klant.");
+                }
+                // Validate Appointment.Employee
+                if (viewModel.Appointment.EmployeeId == null)
+                {
+                    ModelState.AddModelError("Appointment.EmployeeId", "Kies een medewerker.");
+                }
+                if (!ModelState.IsValid)
+                {
+                    viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
+                    viewModel = getAppointmentForEdit(viewModel.Appointment.Id);
+                    return View(viewModel);
+                }
+                //Validate Appointment.Scheduled
+                if (!AppointmentValidator.IsValidDateTime(viewModel.Appointment.Scheduled))
+                {
+                    ModelState.AddModelError("Appointment.Scheduled", "De gekozen tijd en/of datum is niet beschikbaar.");
+                }
+                if (!AppointmentValidator.IsEmployeeAvailable(_context, viewModel.Appointment.EmployeeId, viewModel.Appointment.Scheduled, viewModel.Appointment.Id))
+                {
+                    ModelState.AddModelError("Appointment.Scheduled", "Dit medewerker is niet beschikbaar op de gekozen tijdstip.");
+                }
+                if (!ModelState.IsValid)
+                {
+                    viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
+                    viewModel = getAppointmentForEdit(viewModel.Appointment.Id);
+                    return View(viewModel);
+                }
+                // Validate AppointmentTasks
+                if (viewModel.AppointmentTasks.Count() == 0 || viewModel.AppointmentTasks == null)
+                {
+                    ModelState.AddModelError("AppointmentTasks", "Voeg een taak toe.");
+                }
+                if (!ModelState.IsValid)
+                {
+                    viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
+                    viewModel = getAppointmentForEdit(viewModel.Appointment.Id);
                     return View(viewModel);
                 }
 
+
+
+
+                // EDIT
+                // Get saved appointment
                 var appointment = _context.Appointment.Find(viewModel.Appointment.Id);
                 if (appointment == null)
                 {
-                    return NotFound();
+                    throw new Exception("Something went wrong while retrieving the appointment from the database.");
                 }
+                // Update saved appointment
                 appointment.Scheduled = viewModel.Appointment.Scheduled;
+                appointment.EmployeeId = viewModel.Appointment.EmployeeId;
 
-                var employee = _context.Users.Find(viewModel.Appointment.EmployeeId);
-                if (employee == null)
-                {
-                    return NotFound();
-                }
-                appointment.EmployeeId = employee.Id;
-                appointment.Employee = employee;
-
-                var scheduledTasks = _context.AppointmentTask
+                // Get appointment tasks already scheduled
+                var savedAppointmentTasks = _context.AppointmentTask
                     .Where(e => e.AppointmentId == appointment.Id)
                     .ToList()
                     .ToArray();
-                if (scheduledTasks == null)
+                if (savedAppointmentTasks == null)
                 {
-                    return NotFound();
+                    throw new Exception("Something went wrong while retrieving the scheduled appointment tasks from the database.");
                 }
-
+                // Process each appointment task
                 foreach (var appointmentTask in viewModel.AppointmentTasks)
                 {
-
+                    // Remove appointment task from Db if condition is true
                     if (appointmentTask.IsDeleted)
                     {
                         _context.AppointmentTask.Remove(appointmentTask);
                     }
                     else
                     {
-                        TaskItem? task = null;
-
-                        task = _context.TaskItem
+                        // Get the task
+                         var theTask = _context.TaskItem
                             .Where(e => e.Name == appointmentTask.Task.Name)
                             .FirstOrDefault();
-
-                        if (task == null)
+                        if (theTask == null)
                         {
+                            // Create new task if the task doesn't already exist
                             TaskItem newTaskItem = new TaskItem() { Name = appointmentTask.Task.Name };
                             _context.TaskItem.Add(newTaskItem);
                             _context.SaveChanges();
-
-                            task = _context.TaskItem.OrderBy(e => e.Id).Last();
-                            if (task == null)
+                            // Get the newly created task
+                            theTask = _context.TaskItem.OrderBy(e => e.Id).Last();
+                            if (theTask == null)
                             {
-                                return NotFound();
+                                throw new Exception("Something went wrong while retrieving the task from the database.");
                             }
                         }
-                        appointmentTask.TaskId = task.Id;
-                        appointmentTask.Task = task;
-
+                        // Update saved appointment tasks
                         bool foundMatch = false;
-                        foreach (var scheduledTask in scheduledTasks)
+                        foreach (var savedTask in savedAppointmentTasks)
                         {
-                            if (appointmentTask.TaskId == scheduledTask.TaskId)
+                            if (theTask.Id == savedTask.TaskId)
                             {
-                                scheduledTask.IsDone = appointmentTask.IsDone;
-                                scheduledTask.AdditionalInfo = appointmentTask.AdditionalInfo;
-                                appointment.AppointmentTasks.Add(scheduledTask);
+                                savedTask.IsDone = appointmentTask.IsDone;
+                                savedTask.AdditionalInfo = appointmentTask.AdditionalInfo;
+                                appointment.AppointmentTasks.Add(savedTask);
                                 foundMatch = true;
                                 break;
                             }
                         }
+                        // Add new appointment task
                         if (!foundMatch)
                         {
-                            appointment.AppointmentTasks.Add(appointmentTask);
+                            AppointmentTask newAppointmentTask = new AppointmentTask()
+                            {
+                                AppointmentId = appointment.Id,
+                                TaskId = theTask.Id,
+                                AdditionalInfo = appointmentTask.AdditionalInfo,
+                                IsDone = appointmentTask.IsDone
+                            };
+                            _context.AppointmentTask.Add(newAppointmentTask);
                         }
                     }
+                    _context.SaveChanges();
                 }
                 _context.SaveChanges();
+
                 return RedirectToAction(nameof(Index));
             }
+
             catch
             {
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
+                viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
+                viewModel = getAppointmentForEdit(viewModel.Appointment.Id);
                 return View(viewModel);
             }
 
@@ -420,20 +422,40 @@ namespace Zapp.Controllers
         // POST: Appointment/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public ActionResult DeleteConfirmed(AppointmentViewModel viewModel)
         {
-            if (_context.Appointment == null)
+            try
             {
-                return Problem("Entity set 'ApplicationDbContext.Appointment'  is null.");
-            }
-            var appointment = await _context.Appointment.FindAsync(id);
-            if (appointment != null)
-            {
+                if (_context.Appointment == null)
+                {
+                    return Problem("Entity set 'ApplicationDbContext.Appointment'  is null.");
+                }
+                var appointment =  _context.Appointment.Find(viewModel.Appointment.Id);
+
+                if (appointment == null)
+                {
+                    throw new Exception("Something went wrong while retrieving appointment from the database.");
+                }
+
+                var appointmentTasks = _context.AppointmentTask
+                    .Where(a => a.AppointmentId == appointment.Id)
+                    .ToList();
+                foreach (var task in appointmentTasks)
+                {
+                    _context.AppointmentTask.Remove(task);
+                }
                 _context.Appointment.Remove(appointment);
+
+                 _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
             }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch
+            {
+                ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
+                //viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
+                //viewModel = getAppointmentData(viewModel.Appointment.Id);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         private bool AppointmentExists(int id)

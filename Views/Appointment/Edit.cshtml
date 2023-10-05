@@ -78,7 +78,7 @@
                                 </td>
                                 <td class="center-cell">
                                     <div class="form-group">
-                                        <input id="is-task-done" name="AppointmentTasks[@i].IsDone" type="checkbox" asp-for="AppointmentTasks[i].IsDone" value="@Model.AppointmentTasks[i].IsDone" />
+                                        <input id="is-task-done" name="AppointmentTasks[@i].IsDone" type="checkbox" asp-for="AppointmentTasks[i].IsDone" />
                                     </div>
                                 </td>
                                 <td class="center-cell">
@@ -90,7 +90,7 @@
                                     {
                                         <button class="" id="add-new-task-btn" onclick="addNewTask(1)"><i class="fa fa-plus btn-icon"></i></button>
                                     }
-                                    <input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" value="False" />
+                                    <input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" />
                                 </td>
                             </tr>
                         }
