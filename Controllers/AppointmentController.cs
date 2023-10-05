@@ -15,7 +15,7 @@ namespace Zapp.Controllers
             _context = context;
         }
 
-        // GET: Appointment
+// GET: Appointment
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Appointment
@@ -25,27 +25,8 @@ namespace Zapp.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Appointment/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Appointment == null)
-            {
-                return NotFound();
-            }
 
-            var appointment = await _context.Appointment
-                .Include(a => a.Customer)
-                .Include(a => a.Employee)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (appointment == null)
-            {
-                return NotFound();
-            }
-
-            return View(appointment);
-        }
-
-        // GET: Appointment/Create
+// GET: Appointment/Create
         public IActionResult Create()
         {
             AppointmentViewModel viewModel = new AppointmentViewModel() { Appointment = new Appointment() };
@@ -53,7 +34,8 @@ namespace Zapp.Controllers
             return View(viewModel);
         }
 
-        // POST: Appointment/Create
+
+// POST: Appointment/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(AppointmentViewModel viewModel)
@@ -176,7 +158,6 @@ namespace Zapp.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-
             catch
             {
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
@@ -185,7 +166,7 @@ namespace Zapp.Controllers
             }
         }
 
-        private AppointmentViewModel getAppointmentForEdit(int id)
+        private AppointmentViewModel FillAppointment(int id)
         {
             var appointment = _context.Appointment.Find(id);
             if (appointment == null)
@@ -233,7 +214,8 @@ namespace Zapp.Controllers
             return viewModel;
         }
 
-        // GET: Appointment/Edit/5
+
+// GET: Appointment/Edit/5
         public ActionResult Edit(int id)
         {
             if (_context.Appointment == null)
@@ -241,15 +223,16 @@ namespace Zapp.Controllers
                 return NotFound();
             }
 
-            AppointmentViewModel viewModel = getAppointmentForEdit(id);
+            AppointmentViewModel viewModel = FillAppointment(id);
 
             return View(viewModel);
         }
 
-        // POST: Appointment/Edit/5
+
+// POST: Appointment/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(AppointmentViewModel viewModel)
+        public ActionResult Edit(AppointmentViewModel viewModel)
         {
             try
             {
@@ -264,6 +247,7 @@ namespace Zapp.Controllers
                 viewModel.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(viewModel.AppointmentTasks);
                 viewModel.AppointmentTasks = AppointmentHelper.removeDuplicateAppointmentTasks(viewModel.AppointmentTasks);
 
+
                 // Validate Appointment.Customer 
                 if (viewModel.Appointment.CustomerId == 0)
                 {
@@ -277,7 +261,7 @@ namespace Zapp.Controllers
                 if (!ModelState.IsValid)
                 {
                     viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
-                    viewModel = getAppointmentForEdit(viewModel.Appointment.Id);
+                    viewModel = FillAppointment(viewModel.Appointment.Id);
                     return View(viewModel);
                 }
                 //Validate Appointment.Scheduled
@@ -292,7 +276,7 @@ namespace Zapp.Controllers
                 if (!ModelState.IsValid)
                 {
                     viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
-                    viewModel = getAppointmentForEdit(viewModel.Appointment.Id);
+                    viewModel = FillAppointment(viewModel.Appointment.Id);
                     return View(viewModel);
                 }
                 // Validate AppointmentTasks
@@ -303,14 +287,10 @@ namespace Zapp.Controllers
                 if (!ModelState.IsValid)
                 {
                     viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
-                    viewModel = getAppointmentForEdit(viewModel.Appointment.Id);
+                    viewModel = FillAppointment(viewModel.Appointment.Id);
                     return View(viewModel);
                 }
 
-
-
-
-                // EDIT
                 // Get saved appointment
                 var appointment = _context.Appointment.Find(viewModel.Appointment.Id);
                 if (appointment == null)
@@ -321,7 +301,7 @@ namespace Zapp.Controllers
                 appointment.Scheduled = viewModel.Appointment.Scheduled;
                 appointment.EmployeeId = viewModel.Appointment.EmployeeId;
 
-                // Get appointment tasks already scheduled
+                // Get saved appointment tasks
                 var savedAppointmentTasks = _context.AppointmentTask
                     .Where(e => e.AppointmentId == appointment.Id)
                     .ToList()
@@ -336,48 +316,48 @@ namespace Zapp.Controllers
                 for (int i = 0; i < appointmentTasks.Count(); i++) 
                 {
                     // Get the task
-                        var theTask = _context.TaskItem
+                    var theTask = _context.TaskItem
                         .Where(e => e.Name == appointmentTasks[i].Task.Name)
                         .FirstOrDefault();
+                    // Create new task if the task doesn't already exist
                     if (theTask == null)
                     {
-                        // Create new task if the task doesn't already exist
                         TaskItem newTaskItem = new TaskItem() { Name = appointmentTasks[i].Task.Name };
                         _context.TaskItem.Add(newTaskItem);
                         _context.SaveChanges();
-                        // Get the newly created task
+
                         theTask = _context.TaskItem.OrderBy(e => e.Id).Last();
                         if (theTask == null)
                         {
                             throw new Exception("Something went wrong while retrieving the task from the database.");
                         }
                     }
-
                     appointmentTasks[i].TaskId = theTask.Id;
-                    // Update saved appointment tasks
+
+                    // Check if appointment task already exists
                     bool foundMatch = false;
                     foreach (var savedTask in savedAppointmentTasks)
                     {
                         if (appointmentTasks[i].TaskId == savedTask.TaskId)
                         {
+                            // Remove saved appointment task if IsDeleted is true
                             if (appointmentTasks[i].IsDeleted)
                             {
                                 _context.AppointmentTask.Remove(savedTask);
                             }
                             else
                             {
+                                // Update saved appointment task 
                                 savedTask.IsDone = appointmentTasks[i].IsDone;
                                 savedTask.AdditionalInfo = appointmentTasks[i].AdditionalInfo;
-                                //
-                                appointment.AppointmentTasks.Add(savedTask);
                             }
                             foundMatch = true;
                             break;
                         }
                     }
-                    // Add new appointment task
                     if (!foundMatch)
                     {
+                        // Add new appointment task if IsDeleted is false
                         if (!appointmentTasks[i].IsDeleted)
                         {
                             AppointmentTask newAppointmentTask = new AppointmentTask()
@@ -395,38 +375,18 @@ namespace Zapp.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-
             catch
             {
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
                 viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
-                viewModel = getAppointmentForEdit(viewModel.Appointment.Id);
+                viewModel = FillAppointment(viewModel.Appointment.Id);
                 return View(viewModel);
             }
 
         }
 
-        // GET: Appointment/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Appointment == null)
-            {
-                return NotFound();
-            }
 
-            var appointment = await _context.Appointment
-                .Include(a => a.Customer)
-                .Include(a => a.Employee)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (appointment == null)
-            {
-                return NotFound();
-            }
-
-            return View(appointment);
-        }
-
-        // POST: Appointment/Delete/5
+// POST: Appointment/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(AppointmentViewModel viewModel)
