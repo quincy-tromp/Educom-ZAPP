@@ -6,13 +6,23 @@ namespace Zapp.Models.Business
 	public static class AppointmentValidator
 	{
         /// <summary>
-        /// Checks if dateTime is valid
+        /// Checks if date is valid
         /// </summary>
         /// <param name="dateTime">DateTime to check</param>
-        /// <returns>True if dateTime is valid or False if not</returns>
-        public static bool IsValidDateTime(DateTime dateTime)
+        /// <returns>True if date is valid or False if not</returns>
+        public static bool IsValidDate(DateTime dateTime)
         {
-            return (IsWeekday(dateTime) && IsBetweenWorkHours(dateTime, 8, 17) && dateTime > DateTime.Now);
+            return (IsWeekday(dateTime) && dateTime >= DateTime.Today);
+        }
+
+        /// <summary>
+        /// Checks if time is valid
+        /// </summary>
+        /// <param name="dateTime">DateTime to check</param>
+        /// <returns>True if time is valid or False if not</returns>
+        public static bool IsValidTime(DateTime dateTime)
+        {
+            return (IsBetweenWorkHours(dateTime, 8, 17) && dateTime > DateTime.Now);
         }
 
         /// <summary>

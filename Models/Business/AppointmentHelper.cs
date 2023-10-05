@@ -8,7 +8,34 @@ namespace Zapp.Models.Business
 	public static class AppointmentHelper
 	{
         /// <summary>
-        /// Fills the appointment viewModel with necessary data
+        /// Creates a new AppointmentViewModel with empty appointment
+        /// </summary>
+        /// <returns>The new AppointmentViewModel instance</returns>
+        public static AppointmentViewModel CreateNewViewModel()
+        {
+            return new AppointmentViewModel() { Appointment = new Appointment() };
+        }
+
+        /// <summary>
+        /// Gets the current datetime excluding seconds and milliseconds
+        /// </summary>
+        /// <returns>The current datetime excluding seconds and milliseconds</returns>
+        public static DateTime GetCurrentDateTime()
+        {
+            DateTime currentDateTime = DateTime.Now;
+            return new DateTime(
+                currentDateTime.Year,
+                currentDateTime.Month,
+                currentDateTime.Day,
+                currentDateTime.Hour,
+                currentDateTime.Minute,
+                0, 
+                0  
+            );
+        }
+
+        /// <summary>
+        /// Fills the appointment viewModel with the necessary data
         /// </summary>
         /// <param name="context">The ApplicationDbContext</param>
         /// <param name="viewModel">The AppointmentViewModel to fill</param>
@@ -18,7 +45,7 @@ namespace Zapp.Models.Business
         {
             if (fillCurrentTime)
             {
-                viewModel.Appointment.Scheduled = DateTime.Today;
+                viewModel.Appointment.Scheduled = GetCurrentDateTime();
             }
             viewModel.AllCustomers = context.Customer.ToList();
             viewModel.AllEmployees = context.Users.ToList();
@@ -78,6 +105,58 @@ namespace Zapp.Models.Business
         public static AppointmentTask[] removeDuplicateAppointmentTasks(AppointmentTask[] appointmentTasks)
         {
             return appointmentTasks.Distinct(new TaskEqualityComparer()).ToArray();
+        }
+
+        /// <summary>
+        /// Fills the appointment, customer tasks, and appointment tasks in the viewModel
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static AppointmentViewModel CreateViewModelWithAppointment(ApplicationDbContext context, int id)
+        {
+            var appointment = context.Appointment.Find(id);
+            if (appointment == null)
+            {
+                throw new Exception("Something went wrong while retrieving the appointment from the database.");
+            }
+
+            var viewModel = CreateNewViewModel();
+            viewModel.Appointment = appointment;
+
+            var customer = context.Customer.Find(appointment.CustomerId);
+            if (customer == null)
+            {
+                throw new Exception("Something went wrong while retrieving the customer from the database.");
+            }
+            viewModel.Appointment.Customer = customer;
+
+            var employee = context.Users.Find(appointment.EmployeeId);
+            if (employee == null)
+            {
+                throw new Exception("Something went wrong while retrieving the employee from the database.");
+            }
+            viewModel.Appointment.Employee = employee;
+
+            var appointmentTasks = context.AppointmentTask
+                .Where(e => e.AppointmentId == appointment.Id)
+                .ToList();
+            if (appointmentTasks == null)
+            {
+                throw new Exception("Something went wrong while retrieving the appointmentTasks from the database.");
+            }
+            viewModel.AppointmentTasks = appointmentTasks.ToArray();
+
+            var customerTasks = context.CustomerTask
+                .Where(e => e.CustomerId == customer.Id)
+                .ToList();
+            if (customerTasks != null)
+            {
+                viewModel.CustomerTasks = customerTasks.ToArray();
+            }
+
+            return viewModel;
         }
     }
 }
