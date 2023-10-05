@@ -258,6 +258,7 @@ namespace Zapp.Controllers
                 for (int i = 0; i < viewModel.AppointmentTasks.Count(); i++)
                 {
                     ModelState.Remove($"AppointmentTasks[{i}].Appointment");
+                    ModelState.Remove($"AppointmentTasks[{i}].Task");
                 }
 
                 viewModel.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(viewModel.AppointmentTasks);
@@ -329,60 +330,66 @@ namespace Zapp.Controllers
                 {
                     throw new Exception("Something went wrong while retrieving the scheduled appointment tasks from the database.");
                 }
+
                 // Process each appointment task
-                foreach (var appointmentTask in viewModel.AppointmentTasks)
+                var appointmentTasks = viewModel.AppointmentTasks;
+                for (int i = 0; i < appointmentTasks.Count(); i++) 
                 {
-                    // Remove appointment task from Db if condition is true
-                    if (appointmentTask.IsDeleted)
+                    // Get the task
+                        var theTask = _context.TaskItem
+                        .Where(e => e.Name == appointmentTasks[i].Task.Name)
+                        .FirstOrDefault();
+                    if (theTask == null)
                     {
-                        _context.AppointmentTask.Remove(appointmentTask);
-                    }
-                    else
-                    {
-                        // Get the task
-                         var theTask = _context.TaskItem
-                            .Where(e => e.Name == appointmentTask.Task.Name)
-                            .FirstOrDefault();
+                        // Create new task if the task doesn't already exist
+                        TaskItem newTaskItem = new TaskItem() { Name = appointmentTasks[i].Task.Name };
+                        _context.TaskItem.Add(newTaskItem);
+                        _context.SaveChanges();
+                        // Get the newly created task
+                        theTask = _context.TaskItem.OrderBy(e => e.Id).Last();
                         if (theTask == null)
                         {
-                            // Create new task if the task doesn't already exist
-                            TaskItem newTaskItem = new TaskItem() { Name = appointmentTask.Task.Name };
-                            _context.TaskItem.Add(newTaskItem);
-                            _context.SaveChanges();
-                            // Get the newly created task
-                            theTask = _context.TaskItem.OrderBy(e => e.Id).Last();
-                            if (theTask == null)
-                            {
-                                throw new Exception("Something went wrong while retrieving the task from the database.");
-                            }
+                            throw new Exception("Something went wrong while retrieving the task from the database.");
                         }
-                        // Update saved appointment tasks
-                        bool foundMatch = false;
-                        foreach (var savedTask in savedAppointmentTasks)
+                    }
+
+                    appointmentTasks[i].TaskId = theTask.Id;
+                    // Update saved appointment tasks
+                    bool foundMatch = false;
+                    foreach (var savedTask in savedAppointmentTasks)
+                    {
+                        if (appointmentTasks[i].TaskId == savedTask.TaskId)
                         {
-                            if (theTask.Id == savedTask.TaskId)
+                            if (appointmentTasks[i].IsDeleted)
                             {
-                                savedTask.IsDone = appointmentTask.IsDone;
-                                savedTask.AdditionalInfo = appointmentTask.AdditionalInfo;
-                                appointment.AppointmentTasks.Add(savedTask);
-                                foundMatch = true;
-                                break;
+                                _context.AppointmentTask.Remove(savedTask);
                             }
+                            else
+                            {
+                                savedTask.IsDone = appointmentTasks[i].IsDone;
+                                savedTask.AdditionalInfo = appointmentTasks[i].AdditionalInfo;
+                                //
+                                appointment.AppointmentTasks.Add(savedTask);
+                            }
+                            foundMatch = true;
+                            break;
                         }
-                        // Add new appointment task
-                        if (!foundMatch)
+                    }
+                    // Add new appointment task
+                    if (!foundMatch)
+                    {
+                        if (!appointmentTasks[i].IsDeleted)
                         {
                             AppointmentTask newAppointmentTask = new AppointmentTask()
                             {
                                 AppointmentId = appointment.Id,
-                                TaskId = theTask.Id,
-                                AdditionalInfo = appointmentTask.AdditionalInfo,
-                                IsDone = appointmentTask.IsDone
+                                TaskId = appointmentTasks[i].TaskId,
+                                AdditionalInfo = appointmentTasks[i].AdditionalInfo,
+                                IsDone = appointmentTasks[i].IsDone
                             };
                             _context.AppointmentTask.Add(newAppointmentTask);
                         }
                     }
-                    _context.SaveChanges();
                 }
                 _context.SaveChanges();
 

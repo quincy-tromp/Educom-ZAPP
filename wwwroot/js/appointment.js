@@ -64,13 +64,11 @@ function deleteTask(rowIndex) {
     var row = table.rows[rowIndex];
     row.setAttribute("id", "disabled-row");
     var inputFields = row.getElementsByTagName("input");
-    //var hiddenInput = inputFields.getElementById("delete-task");
-    //hiddenInput.setAttribute("value", "true");
     for (var i = 0; i < inputFields.length; i++) {
         if (inputFields[i].id == "delete-task") {
             inputFields[i].setAttribute("value", "true");
         }
         inputFields[i].setAttribute("id", "disabled-field")
-        inputFields[i].disabled = true;
+        //inputFields[i].disabled = true;
     }
 }
