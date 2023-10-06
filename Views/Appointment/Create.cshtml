@@ -19,20 +19,20 @@
             <div class="col-md-4">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
-                    <input type="datetime-local" asp-for="Appointment.Scheduled" class="form-control" />
                     <span asp-validation-for="Appointment.Scheduled" class="text-danger"></span>
+                    <input type="datetime-local" asp-for="Appointment.Scheduled" class="form-control" />
                 </div>
                 <div class="form-group">
+                    <span asp-validation-for="Appointment.CustomerId" class="text-danger"></span>
                     <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems">
                         <option value="" disabled selected>Selecteer Klant</option>
                     </select>
-                    <span asp-validation-for="Appointment.CustomerId" class="text-danger"></span>
                 </div>
                 <div class="form-group">
+                    <span asp-validation-for="Appointment.EmployeeId" class="text-danger"></span>
                     <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems">
                         <option value="" disabled selected>Selecteer Medewerker</option>
                     </select>
-                    <span asp-validation-for="Appointment.EmployeeId" class="text-danger"></span>
                 </div>
             </div>
         </div>

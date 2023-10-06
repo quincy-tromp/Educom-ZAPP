@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Zapp.Models
 {
 	[Table("Employee")]
-	public class Employee : IdentityUser
+	public class Employee : IdentityUser, IBase<string>
 	{
         [Required]
         public string Name { get; set; }

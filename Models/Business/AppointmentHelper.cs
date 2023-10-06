@@ -17,6 +17,25 @@ namespace Zapp.Models.Business
         }
 
         /// <summary>
+        /// Fills the appointment viewModel with the necessary data
+        /// </summary>
+        /// <param name="context">The ApplicationDbContext</param>
+        /// <param name="viewModel">The AppointmentViewModel to fill</param>
+        /// <param name="fillCurrentTime">True to fill current local time or False if not</param>
+        /// <returns>The filled AppointmentViewModel</returns>
+        public static AppointmentViewModel InitializeViewModel(ApplicationDbContext context, AppointmentViewModel viewModel, bool fillCurrentTime)
+        {
+            if (fillCurrentTime)
+            {
+                viewModel.Appointment.Scheduled = GetCurrentDateTime();
+            }
+            viewModel.AllCustomers = context.Customer.ToList();
+            viewModel.AllEmployees = context.Users.ToList();
+            viewModel.AllTasks = context.TaskItem.ToList();
+            return viewModel;
+        }
+
+        /// <summary>
         /// Gets the current datetime excluding seconds and milliseconds
         /// </summary>
         /// <returns>The current datetime excluding seconds and milliseconds</returns>
@@ -32,25 +51,6 @@ namespace Zapp.Models.Business
                 0, 
                 0  
             );
-        }
-
-        /// <summary>
-        /// Fills the appointment viewModel with the necessary data
-        /// </summary>
-        /// <param name="context">The ApplicationDbContext</param>
-        /// <param name="viewModel">The AppointmentViewModel to fill</param>
-        /// <param name="fillCurrentTime">True to fill current local time or False if not</param>
-        /// <returns>The filled AppointmentViewModel</returns>
-        public static AppointmentViewModel FillViewModel(ApplicationDbContext context, AppointmentViewModel viewModel, bool fillCurrentTime)
-        {
-            if (fillCurrentTime)
-            {
-                viewModel.Appointment.Scheduled = GetCurrentDateTime();
-            }
-            viewModel.AllCustomers = context.Customer.ToList();
-            viewModel.AllEmployees = context.Users.ToList();
-            viewModel.AllTasks = context.TaskItem.ToList();
-            return viewModel;
         }
 
         /// <summary>
@@ -108,13 +108,14 @@ namespace Zapp.Models.Business
         }
 
         /// <summary>
-        /// Fills the appointment, customer tasks, and appointment tasks in the viewModel
+        /// Adds an appointment, including appointment tasks and customer tasks, to a given AppointmentViewModel
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static AppointmentViewModel CreateViewModelWithAppointment(ApplicationDbContext context, int id)
+        /// <param name="context">The ApplicationDbContext</param>
+        /// <param name="model">The AppointmentViewModel to add the appointment to</param>
+        /// <param name="id">The Id of the appointment</param>
+        /// <returns>The up-to-date AppointmentViewModel</returns>
+        /// <exception cref="Exception">A custom generic exception</exception>
+        public static AppointmentViewModel AddAppointmentToViewModel(ApplicationDbContext context, AppointmentViewModel model, int id)
         {
             var appointment = context.Appointment.Find(id);
             if (appointment == null)
@@ -122,22 +123,21 @@ namespace Zapp.Models.Business
                 throw new Exception("Something went wrong while retrieving the appointment from the database.");
             }
 
-            var viewModel = CreateNewViewModel();
-            viewModel.Appointment = appointment;
+            model.Appointment = appointment;
 
             var customer = context.Customer.Find(appointment.CustomerId);
             if (customer == null)
             {
                 throw new Exception("Something went wrong while retrieving the customer from the database.");
             }
-            viewModel.Appointment.Customer = customer;
+            model.Appointment.Customer = customer;
 
             var employee = context.Users.Find(appointment.EmployeeId);
             if (employee == null)
             {
                 throw new Exception("Something went wrong while retrieving the employee from the database.");
             }
-            viewModel.Appointment.Employee = employee;
+            model.Appointment.Employee = employee;
 
             var appointmentTasks = context.AppointmentTask
                 .Where(e => e.AppointmentId == appointment.Id)
@@ -146,17 +146,17 @@ namespace Zapp.Models.Business
             {
                 throw new Exception("Something went wrong while retrieving the appointmentTasks from the database.");
             }
-            viewModel.AppointmentTasks = appointmentTasks.ToArray();
+            model.AppointmentTasks = appointmentTasks.ToArray();
 
             var customerTasks = context.CustomerTask
                 .Where(e => e.CustomerId == customer.Id)
                 .ToList();
             if (customerTasks != null)
             {
-                viewModel.CustomerTasks = customerTasks.ToArray();
+                model.CustomerTasks = customerTasks.ToArray();
             }
 
-            return viewModel;
+            return model;
         }
     }
 }

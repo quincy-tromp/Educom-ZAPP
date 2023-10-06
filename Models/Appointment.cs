@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 namespace Zapp.Models
 {
-	public class Appointment
+	public class Appointment : IBase<int>
 	{
 		public int Id { get; set; }
 

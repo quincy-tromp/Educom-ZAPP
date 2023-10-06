@@ -27,74 +27,66 @@ namespace Zapp.Controllers
 
 
 // GET: Appointment/Create
-        public ActionResult Create()
+        public IActionResult Create()
         {
-            var viewModel = AppointmentHelper.CreateNewViewModel();
-            viewModel = AppointmentHelper.FillViewModel(_context, viewModel, true);
-            return View(viewModel);
+            var model = AppointmentHelper.CreateNewViewModel();
+            model = AppointmentHelper.InitializeViewModel(_context, model, true);
+            return View(model);
         }
 
 
 // POST: Appointment/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(AppointmentViewModel viewModel)
+        public IActionResult Create(AppointmentViewModel model)
         {
             try
             {   // Bring model to a valid state
                 ModelState.Remove("Appointment.Customer");
                 ModelState.Remove("Appointment.Employee");
-                for (int i = 0; i < viewModel.AppointmentTasks.Count(); i++)
+                ModelState.Remove("Appointment.EmployeeId");
+                for (int i = 0; i < model.AppointmentTasks.Count(); i++)
                 {
                     ModelState.Remove($"AppointmentTasks[{i}].Appointment");
                 }
                 // Filter appointment tasks
-                viewModel.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(viewModel.AppointmentTasks);
-                viewModel.AppointmentTasks = AppointmentHelper.removeDuplicateAppointmentTasks(viewModel.AppointmentTasks);
+                model.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(model.AppointmentTasks);
+                model.AppointmentTasks = AppointmentHelper.removeDuplicateAppointmentTasks(model.AppointmentTasks);
 
                 // Validate data 
-                if (viewModel.Appointment.CustomerId == 0)
+                if (AppointmentValidator.IsIntIdZero(model.Appointment.CustomerId))
                 {
-                    ModelState.AddModelError("Appointment.CustomerId", "Kies een klant.");
+                    ModelState.AddModelError("Appointment.CustomerId", "Selecteer een klant.");
                 }
-                if (viewModel.Appointment.EmployeeId == null)
+                if (AppointmentValidator.IsIdNull(model.Appointment.EmployeeId))
                 {
-                    ModelState.AddModelError("Appointment.EmployeeId", "Kies een medewerker.");
+                    ModelState.AddModelError("Appointment.EmployeeId", "Selecteer een medewerker.");
                 }
-                if (!ModelState.IsValid)
-                {
-                    viewModel = AppointmentHelper.FillViewModel(_context, viewModel, true);
-                    return View(viewModel);
-                }
-                if (!AppointmentValidator.IsValidDate(viewModel.Appointment.Scheduled))
+                if (!AppointmentValidator.IsValidDate(model.Appointment.Scheduled))
                 {
                     ModelState.AddModelError("Appointment.Scheduled", "De gekozen datum is niet beschikbaar.");
                 }
-                if (!AppointmentValidator.IsValidTime(viewModel.Appointment.Scheduled))
+                if (!AppointmentValidator.IsValidTime(model.Appointment.Scheduled))
                 {
                     ModelState.AddModelError("Appointment.Scheduled", "De gekozen tijd is niet beschikbaar.");
                 }
-                if (!AppointmentValidator.IsEmployeeAvailable(_context, viewModel.Appointment.EmployeeId, viewModel.Appointment.Scheduled, null))
+                if (!AppointmentValidator.IsEmployeeAvailable(_context, model.Appointment.EmployeeId, model.Appointment.Scheduled, null))
                 {
                     ModelState.AddModelError("Appointment.Scheduled", "Dit medewerker is niet beschikbaar op de gekozen tijdstip.");
                 }
-                if (!ModelState.IsValid)
-                {
-                    viewModel = AppointmentHelper.FillViewModel(_context, viewModel, true);
-                    return View(viewModel);
-                }
-                if (viewModel.AppointmentTasks.Count() == 0 || viewModel.AppointmentTasks == null)
+                if (AppointmentValidator.IsEmptyAppointmentTasks(model.AppointmentTasks))
                 {
                     ModelState.AddModelError("AppointmentTasks", "Voeg een taak toe.");
+                    model.AppointmentTasks = new AppointmentTask[] { new AppointmentTask() };
                 }
                 if (!ModelState.IsValid)
                 {
-                    viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
-                    return View(viewModel);
+                    model = AppointmentHelper.InitializeViewModel(_context, model, false);
+                    return View(model);
                 }
 
                 // Process appointment
-                _context.Appointment.Add(viewModel.Appointment);
+                _context.Appointment.Add(model.Appointment);
                 _context.SaveChanges();
 
                 var theAppointment = _context.Appointment
@@ -107,7 +99,7 @@ namespace Zapp.Controllers
                 }
 
                 // Process appointment tasks
-                var appointmentTasks = viewModel.AppointmentTasks;
+                var appointmentTasks = model.AppointmentTasks;
                 for (int i = 0; i < appointmentTasks.Count(); i++)
                 {
                     var theTask = _context.TaskItem
@@ -164,97 +156,84 @@ namespace Zapp.Controllers
             catch
             {
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
-                viewModel = AppointmentHelper.FillViewModel(_context, viewModel, true);
-                return View(viewModel);
+                model = AppointmentHelper.InitializeViewModel(_context, model, true);
+                return View(model);
             }
         }
 
 
 // GET: Appointment/Edit/5
-        public ActionResult Edit(int id)
+        public IActionResult Edit(int id)
         {
             if (_context.Appointment == null)
             {
                 return NotFound();
             }
+            var model = AppointmentHelper.CreateNewViewModel();
+            model = AppointmentHelper.InitializeViewModel(_context, model, false);
+            model = AppointmentHelper.AddAppointmentToViewModel(_context, model, id);
 
-            var viewModel = AppointmentHelper.CreateViewModelWithAppointment(_context, id);
-            viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
-
-            return View(viewModel);
+            return View(model);
         }
 
 
 // POST: Appointment/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(AppointmentViewModel viewModel)
+        public IActionResult Edit(AppointmentViewModel model)
         {
             try
             {   // Bring model to a valid state 
                 ModelState.Remove("Appointment.Customer");
                 ModelState.Remove("Appointment.Employee");
-                for (int i = 0; i < viewModel.AppointmentTasks.Count(); i++)
+                for (int i = 0; i < model.AppointmentTasks.Count(); i++)
                 {
                     ModelState.Remove($"AppointmentTasks[{i}].Appointment");
                     ModelState.Remove($"AppointmentTasks[{i}].Task");
                 }
                 // Filter appointment tasks
-                viewModel.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(viewModel.AppointmentTasks);
-                viewModel.AppointmentTasks = AppointmentHelper.removeDuplicateAppointmentTasks(viewModel.AppointmentTasks);
+                model.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(model.AppointmentTasks);
+                model.AppointmentTasks = AppointmentHelper.removeDuplicateAppointmentTasks(model.AppointmentTasks);
 
                 // Validate data
-                if (viewModel.Appointment.CustomerId == 0)
+                if (AppointmentValidator.IsIntIdZero(model.Appointment.CustomerId))
                 {
-                    ModelState.AddModelError("Appointment.CustomerId", "Kies een klant.");
+                    ModelState.AddModelError("Appointment.CustomerId", "Selecteer een klant.");
                 }
-                if (viewModel.Appointment.EmployeeId == null)
+                if (AppointmentValidator.IsIdNull(model.Appointment.EmployeeId))
                 {
-                    ModelState.AddModelError("Appointment.EmployeeId", "Kies een medewerker.");
+                    ModelState.AddModelError("Appointment.EmployeeId", "Selecteer een medewerker.");
                 }
-                if (!ModelState.IsValid)
-                {
-                    viewModel = AppointmentHelper.CreateViewModelWithAppointment(_context, viewModel.Appointment.Id);
-                    viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
-                    return View(viewModel);
-                }
-                if (!AppointmentValidator.IsValidDate(viewModel.Appointment.Scheduled))
+                if (!AppointmentValidator.IsValidDate(model.Appointment.Scheduled))
                 {
                     ModelState.AddModelError("Appointment.Scheduled", "De gekozen datum is niet beschikbaar.");
                 }
-                if (!AppointmentValidator.IsValidTime(viewModel.Appointment.Scheduled))
+                if (!AppointmentValidator.IsValidTime(model.Appointment.Scheduled))
                 {
                     ModelState.AddModelError("Appointment.Scheduled", "De gekozen tijd is niet beschikbaar.");
                 }
-                if (!AppointmentValidator.IsEmployeeAvailable(_context, viewModel.Appointment.EmployeeId, viewModel.Appointment.Scheduled, viewModel.Appointment.Id))
+                if (!AppointmentValidator.IsEmployeeAvailable(_context, model.Appointment.EmployeeId, model.Appointment.Scheduled, model.Appointment.Id))
                 {
                     ModelState.AddModelError("Appointment.Scheduled", "Dit medewerker is niet beschikbaar op de gekozen tijdstip.");
                 }
-                if (!ModelState.IsValid)
-                {
-                    viewModel = AppointmentHelper.CreateViewModelWithAppointment(_context, viewModel.Appointment.Id);
-                    viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
-                    return View(viewModel);
-                }
-                if (viewModel.AppointmentTasks.Count() == 0 || viewModel.AppointmentTasks == null)
+                if (AppointmentValidator.IsEmptyAppointmentTasks(model.AppointmentTasks))
                 {
                     ModelState.AddModelError("AppointmentTasks", "Voeg een taak toe.");
                 }
                 if (!ModelState.IsValid)
                 {
-                    viewModel = AppointmentHelper.CreateViewModelWithAppointment(_context, viewModel.Appointment.Id);
-                    viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
-                    return View(viewModel);
+                    model = AppointmentHelper.InitializeViewModel(_context, model, false);
+                    return View(model);
                 }
 
                 // Process appointment
-                var theAppointment = _context.Appointment.Find(viewModel.Appointment.Id);
+                var theAppointment = _context.Appointment.Find(model.Appointment.Id);
                 if (theAppointment == null)
                 {
                     throw new Exception("Something went wrong while retrieving the appointment from the database.");
                 }
-                theAppointment.Scheduled = viewModel.Appointment.Scheduled;
-                theAppointment.EmployeeId = viewModel.Appointment.EmployeeId;
+                theAppointment.Scheduled = model.Appointment.Scheduled;
+                theAppointment.EmployeeId = model.Appointment.EmployeeId;
 
                 // Get saved appointment tasks
                 var savedAppointmentTasks = _context.AppointmentTask
@@ -267,7 +246,7 @@ namespace Zapp.Controllers
                 }
 
                 // Process appointment tasks
-                var appointmentTasks = viewModel.AppointmentTasks;
+                var appointmentTasks = model.AppointmentTasks;
                 for (int i = 0; i < appointmentTasks.Count(); i++) 
                 {
                     var theTask = _context.TaskItem
@@ -330,9 +309,9 @@ namespace Zapp.Controllers
             catch
             {
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
-                viewModel = AppointmentHelper.CreateViewModelWithAppointment(_context, viewModel.Appointment.Id);
-                viewModel = AppointmentHelper.FillViewModel(_context, viewModel, false);
-                return View(viewModel);
+                model = AppointmentHelper.InitializeViewModel(_context, model, false);
+                model = AppointmentHelper.AddAppointmentToViewModel(_context, model, model.Appointment.Id);
+                return View(model);
             }
 
         }
@@ -341,7 +320,7 @@ namespace Zapp.Controllers
 // POST: Appointment/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(AppointmentViewModel viewModel)
+        public IActionResult DeleteConfirmed(AppointmentViewModel model)
         {
             try
             {
@@ -349,7 +328,7 @@ namespace Zapp.Controllers
                 {
                     return Problem("Entity set 'ApplicationDbContext.Appointment'  is null.");
                 }
-                var appointment =  _context.Appointment.Find(viewModel.Appointment.Id);
+                var appointment =  _context.Appointment.Find(model.Appointment.Id);
 
                 if (appointment == null)
                 {

@@ -55,10 +55,10 @@ public class ApplicationDbContext : IdentityDbContext<Employee, IdentityRole, st
             .IsRequired();
     }
 
-    public DbSet<Zapp.Models.Appointment> Appointment { get; set; } 
-    public DbSet<Zapp.Models.Customer> Customer { get; set; } 
-    public DbSet<Zapp.Models.TaskItem> TaskItem { get; set; }
-    public DbSet<Zapp.Models.CustomerTask> CustomerTask { get; set; }
-    public DbSet<Zapp.Models.AppointmentTask> AppointmentTask { get; set; }
+    public virtual DbSet<Zapp.Models.Appointment> Appointment { get; set; } 
+    public virtual DbSet<Zapp.Models.Customer> Customer { get; set; } 
+    public virtual DbSet<Zapp.Models.TaskItem> TaskItem { get; set; }
+    public virtual DbSet<Zapp.Models.CustomerTask> CustomerTask { get; set; }
+    public virtual DbSet<Zapp.Models.AppointmentTask> AppointmentTask { get; set; }
 }
 

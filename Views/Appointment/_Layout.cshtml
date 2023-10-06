@@ -31,7 +31,14 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Appointment" asp-action="Index">Appointment</a>
                         </li>
                     </ul>
-                    <partial name="_LoginPartial" />
+                    <div class="dropdown">
+                        <button>
+                            <i class="fa fa-user" aria-hidden="true"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <partial name="_LoginPartial" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>

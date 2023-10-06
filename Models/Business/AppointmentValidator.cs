@@ -6,6 +6,26 @@ namespace Zapp.Models.Business
 	public static class AppointmentValidator
 	{
         /// <summary>
+        /// Checks if Id equals to zero
+        /// </summary>
+        /// <param name="id">The Id to check</param>
+        /// <returns>True if Id equal to zero or False if not</returns>
+        public static bool IsIntIdZero(int id)
+        {
+            return id == 0;
+        }
+
+        /// <summary>
+        /// Checks if the given Id is null
+        /// </summary>
+        /// <param name="id">The Id to check</param>
+        /// <returns>True if Id is null or False if not</returns>
+        public static bool IsIdNull(string id)
+        {
+            return id == null;
+        }
+
+        /// <summary>
         /// Checks if date is valid
         /// </summary>
         /// <param name="dateTime">DateTime to check</param>
@@ -117,6 +137,17 @@ namespace Zapp.Models.Business
             }
             return true;
         }
+
+        /// <summary>
+        /// Checks if appointment tasks array is empty or null
+        /// </summary>
+        /// <param name="appointmentTasks">The array to check</param>
+        /// <returns>True if array is empty / null or False if not</returns>
+        public static bool IsEmptyAppointmentTasks(AppointmentTask[] appointmentTasks)
+        {
+            return (appointmentTasks.Count() == 0 || appointmentTasks == null);
+        }
+
     }
 }
 

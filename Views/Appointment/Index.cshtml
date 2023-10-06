@@ -27,23 +27,19 @@
             <th>
                 <span>Medewerker</span>
             </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Scheduled)
+                <a asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Scheduled)</a>
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Customer.Name)
+                <a asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Customer.Name)</a>
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Employee.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Employee.Name)</a>
             </td>
         </tr>
 }

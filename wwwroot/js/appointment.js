@@ -69,6 +69,6 @@ function deleteTask(rowIndex) {
             inputFields[i].setAttribute("value", "true");
         }
         inputFields[i].setAttribute("id", "disabled-field")
-        //inputFields[i].disabled = true;
+        inputFields[i].readOnly = true;
     }
 }
