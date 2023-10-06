@@ -87,4 +87,5 @@ nav {
 .nav-logo {
     width: 25%;
     border-radius: 15%;
+    border: none;
 }

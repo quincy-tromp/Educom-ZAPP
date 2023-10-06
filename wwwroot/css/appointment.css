@@ -96,5 +96,6 @@
 }
 
 .btn-action {
-    width: 125px;
+    width: 250px;
+    border-radius: 20px;
 }
