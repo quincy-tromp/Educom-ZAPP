@@ -15,7 +15,7 @@
 
     <h4>Afspraak Bewerken</h4>
     <hr />
-    <form asp-action="Edit">
+    <form id="appointment-edit-form" asp-action="Edit">
         <input type="hidden" asp-for="Appointment.Id" value="@Model.Appointment.Id" />
         <div class="row">
             <div class="col-md-4">
@@ -99,13 +99,14 @@
                 </table>
             </div>
             <div class="form-group">
+                <input type="submit" value="Verwijderen" class="btn btn-danger btn-action" onclick="aspDelete()" />
                 <input type="submit" value="Opslaan" class="btn btn-primary btn-action" />
             </div>
         </div>
     </form>
-    <form asp-action="Delete">
+    @*<form asp-action="Delete">
         <input type="hidden" asp-for="Appointment.Id" />
         <input type="submit" value="Verwijderen" class="btn btn-danger btn-action" /> 
-    </form>
+    </form>*@
 </body>
 </html>

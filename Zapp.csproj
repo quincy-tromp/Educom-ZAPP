@@ -16,6 +16,9 @@
     <None Remove="Models\Business\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="wwwroot\Logo\zapp-logo.png" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
   </ItemGroup>
 
@@ -36,5 +39,10 @@
     <Folder Include="Assets\Diagrams\" />
     <Folder Include="Models\ViewModels\" />
     <Folder Include="Models\Business\" />
+    <Folder Include="wwwroot\Logo\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\Logo\zapp-logo.png" />
+    <Content Remove="wwwroot\Logo\" />
   </ItemGroup>
 </Project>

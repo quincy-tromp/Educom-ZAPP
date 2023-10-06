@@ -12,27 +12,30 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Zapp</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><img class="nav-logo" src="~/Logo/zapp-logo (2).png" alt="zapp-logo"/></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+                    <ul class="navbar-nav flex-grow-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="Index">Afspraken</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-controller="Employee" asp-action="Index">Medewerkers</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Appointment" asp-action="Index">Appointment</a>
+                            <a class="nav-link" asp-area="" asp-controller="Customer" asp-action="Index">Klanten</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Task" asp-action="Index">Taken</a>
                         </li>
                     </ul>
-                    <div class="dropdown">
-                        <button>
+                    <div class="dropdown" style="float:right;">
+                        <button class="dropbtn">
                             <i class="fa fa-user" aria-hidden="true"></i>
                         </button>
                         <div class="dropdown-content">
