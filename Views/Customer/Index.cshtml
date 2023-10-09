@@ -2,6 +2,8 @@
 
 @{
     Layout = "../Shared/_Layout.cshtml";
+    ViewData["Title"] = "Beheer klanten";
+    ViewData["info"] = "Beheer Klanten";
 }
 
 <!DOCTYPE html>
@@ -12,50 +14,52 @@
     <title>Index</title>
 </head>
 <body>
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PostalCode)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Residence)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PostalCode)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Residence)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <h3 class="py-3">Beheer Klanten</h3>
+    <table class="table">
+        <thead>
+            <tr id="header-row">
+                <th style="width: 5%;">
+                    <span>#</span>
+                </th>
+                <th style="width: 30%;">
+                    <span>Naam</span>
+                </th>
+                <th style="width: 25%;">
+                    <span>Adres</span>
+                </th>
+                <th style="width: 15%;">
+                    <span>Postcode</span>
+                </th>
+                <th>
+                    <span>Woonplaats</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ int i = 1; }
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@i</td>
+                    <td>
+                        <a class="t-d-n" asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Name)</a>
+                    </td>
+                    <td>
+                        <a class="t-d-n" asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Address)</a>
+                    </td>
+                    <td>
+                        <a class="t-d-n" asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.PostalCode)</a>
+                    </td>
+                    <td>
+                        <a class="t-d-n" asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Residence)</a>
+                    </td>
+                </tr>
+                i++;
+                }
+        </tbody>
+    </table>
+    <div class="py-5 f-r">
+        <button id="create-btn"><a asp-action="Create">Klant Toevoegen</a></button>
+    </div>
 </body>
 </html>

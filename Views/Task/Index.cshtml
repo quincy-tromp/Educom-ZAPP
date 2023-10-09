@@ -2,6 +2,8 @@
 
 @{
     Layout = "../Shared/_Layout.cshtml";
+    ViewData["Title"] = "Beheer taken";
+    ViewData["info"] = "Beheer Taken";
 }
 
 <!DOCTYPE html>
@@ -12,32 +14,34 @@
     <title>Index</title>
 </head>
 <body>
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <h3 class="py-3">Beheer Taken</h3>
+    <table class="table">
+        <thead>
+            <tr id="header-row">
+                <th>
+                    <span>#</span>
+                </th>
+                <th>
+                    <span>Taak</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ int i = 1; }
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@i</td>
+                    <td>
+                        <a class="t-d-n" asp-action="Delete" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Name)</a>
+                    </td>
+                </tr>
+                i++;
+            }
+        </tbody>
+    </table>
+    <div class="py-5 f-r">
+        <button id="create-btn"><a asp-action="Create">Taak Toevoegen</a></button>
+    </div>
 </body>
 </html>

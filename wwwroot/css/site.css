@@ -8,8 +8,17 @@
   }
 }
 
+.container {
+    max-width: 960px;
+}
+
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #0158a4;
+}
+
+.btn-action {
+    width: 250px;
+    border-radius: 20px;
 }
 
 html {
@@ -19,6 +28,26 @@ html {
 
 body {
   margin-bottom: 60px;
+}
+
+table {
+    width: 100%;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table th, td {
+    border-top: 1px solid lightgrey;
+    border-bottom: 1px solid lightgrey;
+    padding: 8px;
+    text-align: left;
+}
+
+#header-row:hover {
+    background-color: transparent;
 }
 
 .row {
@@ -84,8 +113,43 @@ nav {
     color: #FFFFFF;
 }
 
+.navbar-brand {
+    width: 100px;
+}
+
 .nav-logo {
-    width: 25%;
+    width: 75%;
     border-radius: 15%;
     border: none;
+}
+
+#create-btn {
+    width: 300px;
+    background-color: #005fab;
+    border-radius: 25px;
+    height: 50px;
+}
+
+#create-btn a {
+    color: white;
+    text-decoration: none;
+    font-size: 24px;
+}
+
+.f-r {
+    float: right;
+}
+
+.t-d-n {
+    text-decoration: none;
+    color: black;
+}
+
+.t-d-n:hover {
+    color: #0158a4;
+}
+
+.nav-info {
+    font-size: 28px;
+    color: white;
 }

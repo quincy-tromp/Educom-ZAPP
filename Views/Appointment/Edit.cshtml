@@ -2,6 +2,9 @@
 
 @{
     Layout = "_Layout.cshtml";
+    ViewData["Title"] = "Afspraak bijwerken";
+    ViewData["info"] = Model.Appointment.Customer.Name;
+    ViewData["info_2"] = Model.Appointment.Scheduled.ToString("d MMMM yyyy");
 }
 
 <!DOCTYPE html>
@@ -12,100 +15,119 @@
     <title>Edit</title>
 </head>
 <body>
-    <h4>Afspraak Bewerken</h4>
-    <hr />
-    <form id="appointment-edit-form" asp-action="Edit">
-        <input type="hidden" asp-for="Appointment.Id" value="@Model.Appointment.Id" />
-        <div class="row">
-            <div class="col-md-4">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <input type="datetime-local" asp-for="Appointment.Scheduled" value="@Model.Appointment.Scheduled.ToString("yyyy-MM-ddTHH:mm")" class="form-control" />
-                    <span asp-validation-for="Appointment.Scheduled" class="text-danger"></span>
+    <div class="container">
+        <h3>Afspraak Bijwerken</h3>
+        <hr />
+        <form id="appointment-edit-form" asp-action="Edit">
+            <input type="hidden" asp-for="Appointment.Id" value="@Model.Appointment.Id" />
+            <div class="row">
+                <span asp-validation-summary="ModelOnly" class="text-danger"></span>
+                <div class="card-deck mb-3 text-left d-flex justify-content-between">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <div class="form-group" style="max-width: 1000px">
+                                <input type="datetime-local" asp-for="Appointment.Scheduled" value="@Model.Appointment.Scheduled.ToString("yyyy-MM-ddTHH:mm")" class="form-control" />
+                                <span asp-validation-for="Appointment.Scheduled" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header">Klant</div>
+                        <div class="card-body">
+                            <h4>@Model.Appointment.Customer.Name</h4>
+                            <div>@Model.Appointment.Customer.Address</div>
+                            <div>@Model.Appointment.Customer.PostalCode</div>
+                            <div>@Model.Appointment.Customer.Residence</div>
+                            <div class="form-group">
+                                <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems" disabled></select>
+                                <input type="hidden" asp-for="Appointment.CustomerId" value="@Model.Appointment.CustomerId" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header">Medewerker</div>
+                        <div class="card-body">
+                            <h4>@Model.Appointment.Employee.Name</h4>
+                            <div>Aangemeld: <span>@Model.Appointment.CheckedIn</span></div>
+                            <div>Afgemeld: <span>@Model.Appointment.CheckedOut</span></div>
+                            <div style="min-height: 24px"></div>
+                            <div class="form-group">
+                                <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems" placeholder="Selecteer Medewerker" disabled></select>
+                                <input type="hidden" asp-for="Appointment.EmployeeId" value="@Model.Appointment.EmployeeId" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems" disabled></select>
-                    <input type="hidden" asp-for="Appointment.CustomerId" value="@Model.Appointment.CustomerId" />
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems" placeholder="Selecteer Medewerker">
-                        <option value="" disabled selected>Selecteer Medewerker</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <datalist id="task-list">
-                @foreach (var name in Model.AllTaskNames)
-                {
-                    <option value="@name"></option>
-                }
-            </datalist>
-            <span asp-validation-for="AppointmentTasks" class="text-danger"></span>
-            <table class="table" id="appointment-table">
-                <thead>
-                    <tr id="header-row">
-                        <th>
-                            <span>#</span>
-                        </th>
-                        <th>
-                            <span>Taak</span>
-                        </th>
-                        <th>
-                            <span>Additionele Informatie</span>
-                        </th>
-                        <th>Uitgevoerd?</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (var i = 0; i < Model.AppointmentTasks.Count(); i++)
+            <div class="row">
+                <datalist id="task-list">
+                    @foreach (var name in Model.AllTaskNames)
                     {
-                        <tr>
-                            <td class="index-cell">
-                                <span id="row-index">@(i + 1)</span>
-                            </td>
-                            <td>
-                                <div class="form-group">
-                                    <input id="task-names" list="task-list" name="AppointmentTasks[@i].Task.Name" asp-for="AppointmentTasks[i].Task.Name" class="form-control" placeholder="Zoek taak" />
-                                </div>
-                            </td>
-                            <td>
-                                <div class="form-group">
-                                    <input id="task-info" name="AppointmentTasks[@i].AdditionalInfo" asp-for="AppointmentTasks[i].AdditionalInfo" type="text" class="form-control" value="@Model.AppointmentTasks[i].AdditionalInfo" />
-                                </div>
-                            </td>
-                            <td class="center-cell">
-                                <div class="form-group">
-                                    <input id="is-task-done" name="AppointmentTasks[@i].IsDone" type="checkbox" asp-for="AppointmentTasks[i].IsDone" />
-                                </div>
-                            </td>
-                            <td class="center-cell">
-                                @if (i < Model.AppointmentTasks.Count() - 1)
-                                {
-                                    <button class="" id="delete-task" onclick="deleteTask(@i)"><i class="fa fa-trash-o btn-icon"></i></button>
-                                }
-                                @if (i == Model.AppointmentTasks.Count() - 1)
-                                {
-                                    <button class="" id="add-new-task-btn" onclick="addNewTask(1)"><i class="fa fa-plus btn-icon"></i></button>
-                                }
-                                <input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" />
-                            </td>
-                        </tr>
+                        <option value="@name"></option>
                     }
-                </tbody>
-            </table>
-        </div>
-        <div class="row d-flex justify-content-end">
-            <div class="form-group w-auto">
-                <input type="submit" value="Verwijderen" class="btn btn-danger btn-action" onclick="aspDelete()" />
-                <input type="submit" value="Opslaan" class="btn btn-primary btn-action" />
+                </datalist>
+                <span asp-validation-for="AppointmentTasks" class="text-danger"></span>
+                <table class="table" id="appointment-table">
+                    <thead>
+                        <tr id="header-row">
+                            <th>
+                                <span>#</span>
+                            </th>
+                            <th>
+                                <span>Taak</span>
+                            </th>
+                            <th>
+                                <span>Additionele Informatie</span>
+                            </th>
+                            <th style="text-align: center">Uitgevoerd?</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.AppointmentTasks.Count(); i++)
+                        {
+                            <tr>
+                                <td class="index-cell">
+                                    <span id="row-index">@(i + 1)</span>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <input id="task-names" list="task-list" name="AppointmentTasks[@i].Task.Name" asp-for="AppointmentTasks[i].Task.Name" class="form-control" placeholder="Zoek taak" readonly/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <input id="task-info" name="AppointmentTasks[@i].AdditionalInfo" asp-for="AppointmentTasks[i].AdditionalInfo" type="text" class="form-control" value="@Model.AppointmentTasks[i].AdditionalInfo" />
+                                    </div>
+                                </td>
+                                <td class="center-cell">
+                                    <div class="form-group">
+                                        <input id="is-task-done" name="AppointmentTasks[@i].IsDone" type="checkbox" asp-for="AppointmentTasks[i].IsDone" />
+                                    </div>
+                                </td>
+                                <td class="center-cell">
+                                    @if (i < Model.AppointmentTasks.Count() - 1)
+                                    {
+                                        <button class="" id="delete-task" onclick="deleteTask(@i)"><i class="fa fa-trash-o btn-icon"></i></button>
+                                    }
+                                    @if (i == Model.AppointmentTasks.Count() - 1)
+                                    {
+                                        <button class="" id="add-new-task-btn" onclick="addNewTask(1)"><i class="fa fa-plus btn-icon"></i></button>
+                                    }
+                                    <input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
-        </div>
-    </form>
+            <div class="row d-flex justify-content-end">
+                <div class="form-group w-auto">
+                    <input type="submit" value="Verwijderen" class="btn btn-danger btn-action" onclick="aspDelete('appointment-edit-form')" />
+                    <input type="submit" value="Opslaan" class="btn btn-primary btn-action" />
+                </div>
+            </div>
+        </form>
+    </div>
 </body>
 </html>

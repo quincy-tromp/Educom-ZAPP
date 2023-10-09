@@ -72,10 +72,3 @@ function deleteTask(rowIndex) {
         inputFields[i].readOnly = true;
     }
 }
-
-function aspDelete() {
-    event.preventDefault();
-    var form = document.getElementById("appointment-edit-form");
-    form.setAttribute("action", "/Appointment/Delete/");
-    form.submit();
-}

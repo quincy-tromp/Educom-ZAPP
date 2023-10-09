@@ -2,6 +2,8 @@
 
 @{
     Layout = "_Layout.cshtml";
+    ViewData["Title"] = "Beheer afspraken";
+    ViewData["info"] = "Beheer Afspraken";
 }
 
 <!DOCTYPE html>
@@ -12,9 +14,9 @@
     <title>Index</title>
 </head>
 <body>
-<p>
-    <button id="create-app-btn"><a asp-action="Create">Afspraak Toevoegen</a></button>
-</p>
+<div class="f-r p-3">
+    <button id="create-btn"><a asp-action="Create">Afspraak Toevoegen</a></button>
+</div>
 <table class="table">
     <thead>
         <tr id="header-row">
@@ -33,13 +35,13 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Scheduled)</a>
+                <a class="t-d-n" asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Scheduled)</a>
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Customer.Name)</a>
+                <a class="t-d-n" asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Customer.Name)</a>
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Employee.Name)</a>
+                <a class="t-d-n" asp-action="Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Employee.Name)</a>
             </td>
         </tr>
 }

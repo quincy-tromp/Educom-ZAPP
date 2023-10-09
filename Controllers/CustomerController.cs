@@ -27,24 +27,6 @@ namespace Zapp.Controllers
                           Problem("Entity set 'ApplicationDbContext.Customer'  is null.");
         }
 
-        // GET: Customer/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Customer == null)
-            {
-                return NotFound();
-            }
-
-            var customer = await _context.Customer
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
-            return View(customer);
-        }
-
         // GET: Customer/Create
         public IActionResult Create()
         {
@@ -115,24 +97,6 @@ namespace Zapp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
-        }
-
-        // GET: Customer/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Customer == null)
-            {
-                return NotFound();
-            }
-
-            var customer = await _context.Customer
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
             return View(customer);
         }
 

@@ -223,6 +223,7 @@ namespace Zapp.Controllers
                 if (!ModelState.IsValid)
                 {
                     model = AppointmentHelper.InitializeViewModel(_context, model, false);
+                    model = AppointmentHelper.AddAppointmentToViewModel(_context, model, model.Appointment.Id);
                     return View(model);
                 }
 

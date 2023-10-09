@@ -1,40 +1,4 @@
-﻿.table {
-    width: 100%;
-}
-
-.table table {
-    border-collapse: collapse;
-    width: 100%;
-}
-
-.table th, td {
-    border-top: 1px solid lightgrey;
-    border-bottom: 1px solid lightgrey;
-    padding: 8px;
-    text-align: left;
-}
-
-.table th:nth-child(1), td:nth-child(1) {
-    width: 10%;
-}
-
-.table th:nth-child(2), td:nth-child(2) {
-    width: 35%;
-}
-
-.table th:nth-child(3), td:nth-child(3) {
-    width: 35%;
-}
-
-.table th:nth-child(4), td:nth-child(4) {
-    width: 10%;
-}
-
-.table th:nth-child(4), td:nth-child(4) {
-    width: 10%;
-}
-
-.table tr:hover {
+﻿.table tr:hover {
     background-color: #f5f5f5;
 }
 
@@ -53,10 +17,6 @@
 .center-cell {
     vertical-align: middle;
     text-align: center;
-}
-
-#header-row:hover {
-    background-color: transparent;
 }
 
 #disabled-row, #disabled-field {
@@ -82,20 +42,16 @@
     width: 48px;
 }
 
-#create-app-btn {
-    width: 300px;
-    background-color: #005fab;
-    border-radius: 25px;
-    height: 50px;
+.card {
+    max-width: 300px;
 }
 
-#create-app-btn a {
-    color: white;
-    text-decoration: none;
-    font-size: 24px;
-}
-
-.btn-action {
+.form-group {
     width: 250px;
-    border-radius: 20px;
+    padding-left: 0;
+}
+
+.form-group select, .form-group select:disabled {
+    background-color: #0158a4;
+    color: #ffffff;
 }

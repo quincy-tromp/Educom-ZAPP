@@ -27,46 +27,6 @@ namespace Zapp.Controllers
                           Problem("Entity set 'ApplicationDbContext.Users'  is null.");
         }
 
-        // GET: Employee/Details/5
-        public async Task<IActionResult> Details(string id)
-        {
-            if (id == null || _context.Users == null)
-            {
-                return NotFound();
-            }
-
-            var employee = await _context.Users
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
-
-            return View(employee);
-        }
-
-        // GET: Employee/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Employee/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] Employee employee)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(employee);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(employee);
-        }
-
         // GET: Employee/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
@@ -115,24 +75,6 @@ namespace Zapp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(employee);
-        }
-
-        // GET: Employee/Delete/5
-        public async Task<IActionResult> Delete(string id)
-        {
-            if (id == null || _context.Users == null)
-            {
-                return NotFound();
-            }
-
-            var employee = await _context.Users
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
-
             return View(employee);
         }
 

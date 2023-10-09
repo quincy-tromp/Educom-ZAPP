@@ -2,6 +2,8 @@
 
 @{
     Layout = "../Shared/_Layout.cshtml";
+    ViewData["Title"] = "Toevoegen klant";
+    ViewData["info"] = "Toevoegen Klant";
 }
 
 <!DOCTYPE html>
@@ -12,43 +14,41 @@
     <title>Create</title>
 </head>
 <body>
-
-<h4>Customer</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+    <div class="container">
+        <h3 class="py-3">Nieuwe Klant</h3>
+        <hr />
         <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+            <div class="row">
+                <div class="col-md-4">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label">Naam</label>
+                        <input asp-for="Name" class="form-control" placeholder="Naam invoeren" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Address" class="control-label">Adres</label>
+                        <input asp-for="Address" class="form-control" placeholder="Adres invoeren" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PostalCode" class="control-label">Postcode</label>
+                        <input asp-for="PostalCode" class="form-control" placeholder="Postcode invoeren" />
+                        <span asp-validation-for="PostalCode" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Residence" class="control-label">Woonplaats</label>
+                        <input asp-for="Residence" class="form-control" placeholder="Woonplaats invoeren" />
+                        <span asp-validation-for="Residence" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Address" class="control-label"></label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PostalCode" class="control-label"></label>
-                <input asp-for="PostalCode" class="form-control" />
-                <span asp-validation-for="PostalCode" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Residence" class="control-label"></label>
-                <input asp-for="Residence" class="form-control" />
-                <span asp-validation-for="Residence" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <div class="row d-flex justify-content-end">
+                <div class="form-group py-2 w-auto">
+                    <input type="submit" value="Toevoegen" class="btn btn-primary btn-action" />
+                </div>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 </body>
 </html>

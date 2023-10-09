@@ -2,6 +2,8 @@
 
 @{
     Layout = "_Layout.cshtml";
+    ViewData["Title"] = "Toevoegen afspraak";
+    ViewData["info"] = "Toevoegen Afspraak";
 }
 
 <!DOCTYPE html>
@@ -12,32 +14,46 @@
     <title>Create</title>
 </head>
 <body>
-    <h4>Nieuwe Afspraak</h4>
-    <hr />
-    <form asp-action="Create">
-        <div class="row">
-            <div class="col-md-4">
+    <div class="container">
+        <h3>Nieuwe Afspraak</h3>
+        <hr />
+        <form asp-action="Create">
+            <div class="row">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <span asp-validation-for="Appointment.Scheduled" class="text-danger"></span>
-                    <input type="datetime-local" asp-for="Appointment.Scheduled" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <span asp-validation-for="Appointment.CustomerId" class="text-danger"></span>
-                    <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems">
-                        <option value="" disabled selected>Selecteer Klant</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <span asp-validation-for="Appointment.EmployeeId" class="text-danger"></span>
-                    <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems">
-                        <option value="" disabled selected>Selecteer Medewerker</option>
-                    </select>
+                <div class="card-deck mb-3 text-left d-flex justify-content-between">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <span asp-validation-for="Appointment.Scheduled" class="text-danger"></span>
+                                <input type="datetime-local" asp-for="Appointment.Scheduled" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header">Klant</div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <span asp-validation-for="Appointment.CustomerId" class="text-danger"></span>
+                                <select asp-for="Appointment.CustomerId" class="form-control" asp-items="Model.AllCustomersListItems">
+                                    <option value="" disabled selected>Selecteer Klant</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header">Medewerker</div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <span asp-validation-for="Appointment.EmployeeId" class="text-danger"></span>
+                                <select asp-for="Appointment.EmployeeId" class="form-control" asp-items="Model.AllEmployeesListItems">
+                                    <option value="" disabled selected>Selecteer Medewerker</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="container">
+            <div class="row">
                 <datalist id="task-list">
                     @foreach (var name in Model.AllTaskNames)
                     {
@@ -80,14 +96,14 @@
                                 </td>
                                 <td></td>
                                 <td class="center-cell">
-                                @if (i < Model.AppointmentTasks.Count() - 1)
-                                {
-                                    <button class="" id="delete-task" onclick="deleteTask(@i)"><i class="fa fa-trash-o btn-icon"></i></button>
-                                }
-                                @if (i == Model.AppointmentTasks.Count() - 1)
-                                {
-                                    <button class="" id="add-new-task-btn" onclick="addNewTask()"><i class="fa fa-plus btn-icon"></i></button>
-                                }
+                                    @if (i < Model.AppointmentTasks.Count() - 1)
+                                    {
+                                        <button class="" id="delete-task" onclick="deleteTask(@i)"><i class="fa fa-trash-o btn-icon"></i></button>
+                                    }
+                                    @if (i == Model.AppointmentTasks.Count() - 1)
+                                    {
+                                        <button class="" id="add-new-task-btn" onclick="addNewTask()"><i class="fa fa-plus btn-icon"></i></button>
+                                    }
                                     <input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" value="False" />
                                 </td>
                             </tr>
@@ -95,10 +111,12 @@
                     </tbody>
                 </table>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <div class="row d-flex justify-content-end">
+                <div class="form-group py-2 w-auto">
+                    <input type="submit" value="Toevoegen" class="btn btn-primary btn-action" />
+                </div>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </body>
 </html>
