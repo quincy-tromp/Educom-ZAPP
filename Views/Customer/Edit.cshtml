@@ -1,10 +1,10 @@
-@model Zapp.Models.Customer
+@model Zapp.Models.ViewModels.CustomerViewModel
 
 @{
     Layout = "../Shared/_Layout.cshtml";
     ViewData["Title"] = "Bijwerken klant";
     ViewData["info"] = "Bijwerken Klant";
-    ViewData["info_2"] = Model.Name;
+    ViewData["info_2"] = Model.Customer.Name;
 }
 
 <!DOCTYPE html>
@@ -18,32 +18,95 @@
     <div class="container">
         <h3>Klant Bijwerken</h3>
         <hr />
+        <h4>NAW Gegevens</h4>
         <form id="customer-edit-form" asp-action="Edit">
+            <input type="hidden" asp-for="Customer.Id" value="@Model.Customer.Id" />
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-5 ww">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" asp-for="Id" />
-                    <div class="form-group">
-                        <label asp-for="Name" class="control-label"></label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
+                    <div class="form-group ww">
+                        <label asp-for="Customer.Name" class="control-label">Naam</label>
+                        <input asp-for="Customer.Name" class="form-control" readonly />
+                        <span asp-validation-for="Customer.Name" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Address" class="control-label"></label>
-                        <input asp-for="Address" class="form-control" />
-                        <span asp-validation-for="Address" class="text-danger"></span>
+                    <div class="form-group ww">
+                        <label asp-for="Customer.Address" class="control-label">Adres</label>
+                        <input asp-for="Customer.Address" class="form-control" />
+                        <span asp-validation-for="Customer.Address" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="PostalCode" class="control-label"></label>
-                        <input asp-for="PostalCode" class="form-control" />
-                        <span asp-validation-for="PostalCode" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Residence" class="control-label"></label>
-                        <input asp-for="Residence" class="form-control" />
-                        <span asp-validation-for="Residence" class="text-danger"></span>
+                    <div class="d-flex justify-content-between pp">
+                        <div class="form-group" style="width: 25%;">
+                            <label asp-for="Customer.PostalCode" class="control-label">Postcode</label>
+                            <input asp-for="Customer.PostalCode" class="form-control" />
+                            <span asp-validation-for="Customer.PostalCode" class="text-danger"></span>
+                        </div>
+                        <div class="form-group" style="width: 72%;">
+                            <label asp-for="Customer.Residence" class="control-label">Woonplaats</label>
+                            <input asp-for="Customer.Residence" class="form-control" />
+                            <span asp-validation-for="Customer.Residence" class="text-danger"></span>
+                        </div>
                     </div>
                 </div>
+            </div>
+            <div class="row">
+                <h4>Vaste taken voor deze klant</h4>
+                <datalist id="task-list">
+                    @foreach (var name in Model.AllTaskNames)
+                    {
+                        <option value="@name"></option>
+                    }
+                </datalist>
+                <span asp-validation-for="CustomerTasks" class="text-danger"></span>
+                <table class="table" id="main-table">
+                    <thead>
+                        <tr id="header-row">
+                            <th>
+                                <span>#</span>
+                            </th>
+                            <th>
+                                <span>Taak</span>
+                            </th>
+                            <th>
+                                <span>Additionele Informatie</span>
+                            </th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.CustomerTasks.Count(); i++)
+                        {
+                            <tr>
+                                <td class="index-cell">
+                                    <span id="row-index">@(i + 1)</span>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <input id="task-names" list="task-list" name="CustomerTasks[@i].Task.Name" asp-for="CustomerTasks[i].Task.Name" class="form-control" placeholder="Zoek taak" readonly />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <input id="task-info" name="CustomerTasks[@i].AdditionalInfo" asp-for="CustomerTasks[i].AdditionalInfo" type="text" class="form-control" value="@Model.CustomerTasks[i].AdditionalInfo" />
+                                    </div>
+                                </td>
+                                <td>
+                                </td>
+                                <td class="center-cell">
+                                    @if (i < Model.CustomerTasks.Count() - 1)
+                                    {
+                                        <button class="" id="delete-task" onclick="deleteTask(@i)"><i class="fa fa-trash-o btn-icon"></i></button>
+                                    }
+                                    @if (i == Model.CustomerTasks.Count() - 1)
+                                    {
+                                        <button class="" id="add-new-task-btn" onclick="addNewRow()"><i class="fa fa-plus btn-icon"></i></button>
+                                    }
+                                    <input id="delete-task" type="hidden" asp-for="CustomerTasks[i].IsDeleted" name="CustomerTasks[@i].IsDeleted" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
             <div class="row d-flex justify-content-end">
                 <div class="form-group w-auto">

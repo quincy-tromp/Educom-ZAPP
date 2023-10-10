@@ -153,3 +153,12 @@ nav {
     font-size: 28px;
     color: white;
 }
+
+.ww {
+    width: 100% !important;
+}
+
+.pp {
+    padding-left: 0;
+    padding-right: 0;
+}

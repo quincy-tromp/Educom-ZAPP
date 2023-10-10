@@ -20,19 +20,19 @@ namespace Zapp.Models.Business
         /// Fills the appointment viewModel with the necessary data
         /// </summary>
         /// <param name="context">The ApplicationDbContext</param>
-        /// <param name="viewModel">The AppointmentViewModel to fill</param>
+        /// <param name="model">The AppointmentViewModel to fill</param>
         /// <param name="fillCurrentTime">True to fill current local time or False if not</param>
         /// <returns>The filled AppointmentViewModel</returns>
-        public static AppointmentViewModel InitializeViewModel(ApplicationDbContext context, AppointmentViewModel viewModel, bool fillCurrentTime)
+        public static AppointmentViewModel InitializeViewModel(ApplicationDbContext context, AppointmentViewModel model, bool fillCurrentTime)
         {
             if (fillCurrentTime)
             {
-                viewModel.Appointment.Scheduled = GetCurrentDateTime();
+                model.Appointment.Scheduled = GetCurrentDateTime();
             }
-            viewModel.AllCustomers = context.Customer.ToList();
-            viewModel.AllEmployees = context.Users.ToList();
-            viewModel.AllTasks = context.TaskItem.ToList();
-            return viewModel;
+            model.AllCustomers = context.Customer.ToList();
+            model.AllEmployees = context.Users.ToList();
+            model.AllTasks = context.TaskItem.ToList();
+            return model;
         }
 
         /// <summary>

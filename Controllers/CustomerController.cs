@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Zapp.Data;
 using Zapp.Models;
+using Zapp.Models.ViewModels;
 
 namespace Zapp.Controllers
 {
@@ -30,74 +31,216 @@ namespace Zapp.Controllers
         // GET: Customer/Create
         public IActionResult Create()
         {
-            return View();
+            var model = new CustomerViewModel { Customer = new Customer() };
+            model.AllTasks = _context.TaskItem.ToList();
+            return View(model);
         }
 
         // POST: Customer/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address,PostalCode,Residence")] Customer customer)
+        public IActionResult Create(CustomerViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
+                if (!ModelState.IsValid)
+                {
+                    model.AllTasks = _context.TaskItem.ToList();
+                    return View(model);
+                }
+
+                var customer = model.Customer;
+                var customerTasks = model.CustomerTasks;
+
+                // Process new customer
                 _context.Add(customer);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
+
+                var theCustomer = _context.Customer
+                    .OrderBy(e => e.Id)
+                    .Last();
+                if (theCustomer == null)
+                {
+                    throw new Exception("Something went wrong while retrieving the customer from the database.");
+                }
+                customer.Id = theCustomer.Id;
+
+                // Process customer tasks
+                foreach (var customerTask in customerTasks)
+                {
+                    customerTask.CustomerId = customer.Id;
+
+                    var theTask = _context.TaskItem
+                    .Where(e => e.Name == customerTask.Task.Name)
+                    .FirstOrDefault();
+                    if (theTask == null)
+                    {
+                        TaskItem newTaskItem = new TaskItem() { Name = customerTask.Task.Name };
+                        _context.TaskItem.Add(newTaskItem);
+                        _context.SaveChanges();
+
+                        theTask = _context.TaskItem.OrderBy(e => e.Id).Last();
+                        if (theTask == null)
+                        {
+                            throw new Exception("Something went wrong while retrieving the task from the database.");
+                        }
+                    }
+                    customerTask.TaskId = theTask.Id;
+
+                    if (!customerTask.IsDeleted)
+                    {
+                        CustomerTask newCustomerTask = new CustomerTask()
+                        {
+                            CustomerId = customerTask.CustomerId,
+                            TaskId = customerTask.TaskId,
+                            AdditionalInfo = customerTask.AdditionalInfo
+                        };
+                        _context.CustomerTask.Add(newCustomerTask);
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            catch
+            {
+                ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan.");
+                model.AllTasks = _context.TaskItem.ToList();
+                return View(model);
+            }
         }
 
         // GET: Customer/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public IActionResult Edit(int? id)
         {
             if (id == null || _context.Customer == null)
             {
                 return NotFound();
             }
 
-            var customer = await _context.Customer.FindAsync(id);
+            var customer = _context.Customer
+                .Find(id);
             if (customer == null)
             {
                 return NotFound();
             }
-            return View(customer);
+            var customerTasks = _context.CustomerTask
+                .Where(e => e.CustomerId == customer.Id)
+                .ToList()
+                .ToArray();
+
+            var model = new CustomerViewModel {
+                Customer = customer,
+            };
+            if (customerTasks != null && customerTasks.Length != 0)
+            {
+                model.CustomerTasks = customerTasks;
+            }
+            model.AllTasks = _context.TaskItem.ToList();
+            return View(model);
         }
 
         // POST: Customer/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,PostalCode,Residence")] Customer customer)
+        public IActionResult Edit(CustomerViewModel model)
         {
-            if (id != customer.Id)
+            try
             {
-                return NotFound();
-            }
+                for (int i = 0; i < model.CustomerTasks.Count(); i++)
+                {
+                    ModelState.Remove($"CustomerTasks[{i}].Customer");
+                    ModelState.Remove($"AppointmentTasks[{i}].Task.Name");
+                }
 
-            if (ModelState.IsValid)
-            {
-                try
+                if (!ModelState.IsValid)
                 {
-                    _context.Update(customer);
-                    await _context.SaveChangesAsync();
+                    model.AllTasks = _context.TaskItem.ToList();
+                    return View(model);
                 }
-                catch (DbUpdateConcurrencyException)
+
+                var customer = model.Customer;
+                var customerTasks = model.CustomerTasks;
+
+                // Process customer
+                _context.Update(customer);
+                _context.SaveChanges();
+
+                // Process customer tasks
+                var savedCustomerTasks = _context.CustomerTask
+                    .Where(e => e.CustomerId == customer.Id)
+                    .ToList()
+                    .ToArray();
+                    
+                foreach (var customerTask in customerTasks)
                 {
-                    if (!CustomerExists(customer.Id))
+                    customerTask.CustomerId = customer.Id;
+
+                    var theTask = _context.TaskItem
+                        .Where(e => e.Name == customerTask.Task.Name)
+                        .FirstOrDefault();
+                    if (theTask == null)
                     {
-                        return NotFound();
+                        TaskItem newTaskItem = new TaskItem() { Name = customerTask.Task.Name };
+                        _context.TaskItem.Add(newTaskItem);
+                        _context.SaveChanges();
+
+                        theTask = _context.TaskItem.OrderBy(e => e.Id).Last();
+                        if (theTask == null)
+                        {
+                            throw new Exception("Something went wrong while retrieving the task from the database.");
+                        }
                     }
-                    else
+                    customerTask.TaskId = theTask.Id;
+
+                    bool foundMatch = false;
+                    if (savedCustomerTasks != null)
                     {
-                        throw;
+                        foreach (var savedTask in savedCustomerTasks)
+                        {
+                            if (customerTask.TaskId == savedTask.TaskId)
+                            {
+                                if (customerTask.IsDeleted)
+                                {
+                                    _context.CustomerTask.Remove(savedTask);
+                                }
+                                else
+                                {
+                                    savedTask.AdditionalInfo = customerTask.AdditionalInfo;
+                                }
+                                foundMatch = true;
+                                break;
+                            }
+                        }
+                        if (!foundMatch)
+                        {
+                            if (!customerTask.IsDeleted)
+                            {
+                                CustomerTask newCustomerTask = new CustomerTask()
+                                {
+                                    CustomerId = customerTask.CustomerId,
+                                    TaskId = customerTask.TaskId,
+                                    AdditionalInfo = customerTask.AdditionalInfo
+                                };
+                                _context.CustomerTask.Add(newCustomerTask);
+                            }
+                        }
                     }
                 }
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CustomerExists(model.Customer.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan.");
+                    model.AllTasks = _context.TaskItem.ToList();
+                    return View(model);
+                }
+            }
         }
 
         // POST: Customer/Delete/5

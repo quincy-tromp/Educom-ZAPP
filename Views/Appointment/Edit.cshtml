@@ -67,7 +67,7 @@
                     }
                 </datalist>
                 <span asp-validation-for="AppointmentTasks" class="text-danger"></span>
-                <table class="table" id="appointment-table">
+                <table class="table" id="main-table">
                     <thead>
                         <tr id="header-row">
                             <th>
@@ -112,7 +112,7 @@
                                     }
                                     @if (i == Model.AppointmentTasks.Count() - 1)
                                     {
-                                        <button class="" id="add-new-task-btn" onclick="addNewTask(1)"><i class="fa fa-plus btn-icon"></i></button>
+                                        <button class="" id="add-new-task-btn" onclick="addNewRow('appointment',1)"><i class="fa fa-plus btn-icon"></i></button>
                                     }
                                     <input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" />
                                 </td>
