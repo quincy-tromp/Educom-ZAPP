@@ -43,14 +43,38 @@ namespace Zapp.Controllers
         {
             try
             {
+                var customer = model.Customer;
+                var customerTasks = model.CustomerTasks;
+                customerTasks = customerTasks.Where(e => e.Task.Name != null).ToArray();
+
+                if (customer.Name == null || customer.Name == "")
+                {
+                    ModelState.Remove("Customer.Name");
+                    ModelState.AddModelError("Customer.Name", "Klant naam invoeren");
+                }
+                if (customer.Address == null || customer.Address == "")
+                {
+                    ModelState.Remove("Customer.Address");
+                    ModelState.AddModelError("Customer.Address", "Klant adres invoeren");
+                }
+                if (customer.PostalCode == null || customer.PostalCode == "")
+                {
+                    ModelState.Remove("Customer.PostalCode");
+                    ModelState.AddModelError("Customer.PostalCode", "Klant postcode invoeren");
+                }
+                if (customer.Residence == null || customer.Residence == "")
+                {
+                    ModelState.Remove("Customer.Residence");
+                    ModelState.AddModelError("Customer.Residence", "Klant woonplaats invoeren");
+                }
+
                 if (!ModelState.IsValid)
                 {
                     model.AllTasks = _context.TaskItem.ToList();
                     return View(model);
                 }
 
-                var customer = model.Customer;
-                var customerTasks = model.CustomerTasks;
+                
 
                 // Process new customer
                 _context.Add(customer);
@@ -151,14 +175,35 @@ namespace Zapp.Controllers
                     ModelState.Remove($"AppointmentTasks[{i}].Task.Name");
                 }
 
+                var customer = model.Customer;
+                var customerTasks = model.CustomerTasks;
+
+                if (customer.Name == null || customer.Name == "")
+                {
+                    ModelState.Remove("Customer.Name");
+                    ModelState.AddModelError("Customer.Name", "Klant naam invoeren");
+                }
+                if (customer.Address == null || customer.Address == "")
+                {
+                    ModelState.Remove("Customer.Address");
+                    ModelState.AddModelError("Customer.Address", "Klant adres invoeren");
+                }
+                if (customer.PostalCode == null || customer.PostalCode == "")
+                {
+                    ModelState.Remove("Customer.PostalCode");
+                    ModelState.AddModelError("Customer.PostalCode", "Klant postcode invoeren");
+                }
+                if (customer.Residence == null || customer.Residence == "")
+                {
+                    ModelState.Remove("Customer.Residence");
+                    ModelState.AddModelError("Customer.Residence", "Klant woonplaats invoeren");
+                }
+
                 if (!ModelState.IsValid)
                 {
                     model.AllTasks = _context.TaskItem.ToList();
                     return View(model);
                 }
-
-                var customer = model.Customer;
-                var customerTasks = model.CustomerTasks;
 
                 // Process customer
                 _context.Update(customer);
