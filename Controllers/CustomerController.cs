@@ -43,6 +43,12 @@ namespace Zapp.Controllers
         {
             try
             {
+                for (int i = 0; i < model.CustomerTasks.Count(); i++)
+                {
+                    ModelState.Remove($"CustomerTasks[{i}].Customer");
+                    ModelState.Remove($"CustomerTasks[{i}].Task.Name");
+                }
+
                 var customer = model.Customer;
                 var customerTasks = model.CustomerTasks;
                 customerTasks = customerTasks.Where(e => e.Task.Name != null).ToArray();
@@ -73,8 +79,6 @@ namespace Zapp.Controllers
                     model.AllTasks = _context.TaskItem.ToList();
                     return View(model);
                 }
-
-                
 
                 // Process new customer
                 _context.Add(customer);
@@ -122,6 +126,7 @@ namespace Zapp.Controllers
                         _context.CustomerTask.Add(newCustomerTask);
                     }
                 }
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -291,16 +296,29 @@ namespace Zapp.Controllers
         // POST: Customer/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(CustomerViewModel model)
         {
             if (_context.Customer == null)
             {
                 return Problem("Entity set 'ApplicationDbContext.Customer'  is null.");
             }
+
+            var id = model.Customer.Id;
             var customer = await _context.Customer.FindAsync(id);
             if (customer != null)
             {
                 _context.Customer.Remove(customer);
+            }
+
+            var customerTasks = _context.CustomerTask
+                .Where(e => e.CustomerId == id)
+                .ToList();
+            if (customerTasks!= null && customerTasks.Count() > 0)
+            {
+                foreach (var task in customerTasks)
+                {
+                    _context.CustomerTask.Remove(task);
+                }
             }
             
             await _context.SaveChangesAsync();
