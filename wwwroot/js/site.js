@@ -45,13 +45,13 @@ function AddTaskRow(table, rowIndex, task, flag) {
             '<input id="is-task-done" name="' + task + 'Tasks[@i].IsDone" type="checkbox" asp-for="' + task + 'Tasks[i].IsDone" value="@Model.' + task + 'Tasks[i].IsDone" />' +
         '</div>';
         cell5.innerHTML =
-        '<button id="add-new-task-btn" onclick="addNewRow(' + task + ',1)"><i class="fa fa-plus btn-icon"></i></button>' +
+        '<button id="add-new-task-btn" onclick="addNewRow(\'' + task + '\',1)"><i class="fa fa-plus btn-icon"></i></button>' +
         '<input id="delete-task" type="hidden" asp-for="' + task + 'Tasks[i].IsDeleted" name="' + task + 'Tasks[@i].IsDeleted" />';
     }
     else {
         cell4.innerHTML = '';
         cell5.innerHTML =
-        '<button id="add-new-task-btn" onclick="addNewRow(' + task + ')"><i class="fa fa-plus btn-icon"></i></button>' +
+        '<button id="add-new-task-btn" onclick="addNewRow(\'' + task + '\')"><i class="fa fa-plus btn-icon"></i></button>' +
         '<input id="delete-task" type="hidden" asp-for="' + task + 'Tasks[i].IsDeleted" name="' + task + 'Tasks[@i].IsDeleted" />';
     }
 }

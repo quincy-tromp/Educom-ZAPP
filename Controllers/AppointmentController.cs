@@ -98,6 +98,23 @@ namespace Zapp.Controllers
                     throw new Exception("Something went wrong while retrieving the appointment from the database");
                 }
 
+                // Process customer tasks
+                var customerTasks = theAppointment.Customer.CustomerTasks;
+                if (customerTasks != null)
+                {
+                    foreach (var customerTask in customerTasks)
+                    {
+                        var appointmentTask = new AppointmentTask()
+                        {
+                            AppointmentId = theAppointment.Id,
+                            TaskId = customerTask.TaskId,
+                            AdditionalInfo = customerTask.AdditionalInfo
+                        };
+                        _context.AppointmentTask.Add(appointmentTask);
+                    }
+                    _context.SaveChanges();
+                }
+
                 // Process appointment tasks
                 var appointmentTasks = model.AppointmentTasks;
                 for (int i = 0; i < appointmentTasks.Count(); i++)
@@ -121,36 +138,49 @@ namespace Zapp.Controllers
                     appointmentTasks[i].TaskId = theTask.Id;
                     appointmentTasks[i].AppointmentId = theAppointment.Id;
 
-                    if (!appointmentTasks[i].IsDeleted)
-                    {
-                        AppointmentTask newAppointmentTask = new AppointmentTask()
-                        {
-                            AppointmentId = appointmentTasks[i].AppointmentId,
-                            TaskId = appointmentTasks[i].TaskId,
-                            AdditionalInfo = appointmentTasks[i].AdditionalInfo,
-                            IsDone = appointmentTasks[i].IsDone
-                        };
-                        _context.AppointmentTask.Add(newAppointmentTask);
-                    }
-                }
 
-                // Process customer tasks
-                var customerTasks = theAppointment.Customer.CustomerTasks;
-                if (customerTasks != null)
-                {
-                    foreach (var customerTask in customerTasks)
+                    var savedAppointmentTasks = _context.AppointmentTask
+                    .Where(e => e.AppointmentId == theAppointment.Id)
+                    .ToList()
+                    .ToArray();
+
+                    bool foundMatch = false;
+
+                    if (savedAppointmentTasks != null && savedAppointmentTasks.Length > 0)
                     {
-                        var appointmentTask = new AppointmentTask()
+                        foreach (var savedTask in savedAppointmentTasks)
                         {
-                            AppointmentId = theAppointment.Id,
-                            TaskId = customerTask.TaskId,
-                            AdditionalInfo = customerTask.AdditionalInfo
-                        };
-                        _context.AppointmentTask.Add(appointmentTask);
+                            if (appointmentTasks[i].TaskId == savedTask.TaskId)
+                            {
+                                if (!appointmentTasks[i].IsDeleted)
+                                {
+                                    savedTask.IsDone = appointmentTasks[i].IsDone;
+                                    savedTask.AdditionalInfo = appointmentTasks[i].AdditionalInfo;
+                                    _context.AppointmentTask.Update(savedTask);
+                                } 
+                                foundMatch = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!foundMatch)
+                    {
+                        if (!appointmentTasks[i].IsDeleted)
+                        {
+                            AppointmentTask newAppointmentTask = new AppointmentTask()
+                            {
+                                AppointmentId = appointmentTasks[i].AppointmentId,
+                                TaskId = appointmentTasks[i].TaskId,
+                                AdditionalInfo = appointmentTasks[i].AdditionalInfo,
+                                IsDone = appointmentTasks[i].IsDone
+                            };
+                            _context.AppointmentTask.Add(newAppointmentTask);
+                        }
                     }
                     _context.SaveChanges();
                 }
-
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -302,6 +332,7 @@ namespace Zapp.Controllers
                             _context.AppointmentTask.Add(newAppointmentTask);
                         }
                     }
+                    _context.SaveChanges();
                 }
                 _context.SaveChanges();
 
