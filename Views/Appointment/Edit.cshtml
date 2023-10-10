@@ -112,7 +112,7 @@
                                     }
                                     @if (i == Model.AppointmentTasks.Count() - 1)
                                     {
-                                        <button class="" id="add-new-task-btn" onclick="addNewRow('appointment',1)"><i class="fa fa-plus btn-icon"></i></button>
+                                        <button class="" id="add-new-task-btn" onclick="addNewRow('Appointment',1)"><i class="fa fa-plus btn-icon"></i></button>
                                     }
                                     <input id="delete-task" type="hidden" asp-for="AppointmentTasks[i].IsDeleted" name="AppointmentTasks[@i].IsDeleted" />
                                 </td>
@@ -123,7 +123,7 @@
             </div>
             <div class="row d-flex justify-content-end">
                 <div class="form-group w-auto">
-                    <input type="submit" value="Verwijderen" class="btn btn-danger btn-action" onclick="aspDelete('appointment-edit-form')" />
+                    <input type="submit" value="Verwijderen" class="btn btn-danger btn-action" onclick="aspDelete('appointment-edit-form', 'Appointment')" />
                     <input type="submit" value="Opslaan" class="btn btn-primary btn-action" />
                 </div>
             </div>

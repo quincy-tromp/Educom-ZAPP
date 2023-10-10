@@ -97,7 +97,7 @@
                                     }
                                     @if (i == Model.CustomerTasks.Count() - 1)
                                     {
-                                        <button class="" id="add-new-task-btn" onclick="addNewRow()"><i class="fa fa-plus btn-icon"></i></button>
+                                        <button class="" id="add-new-task-btn" onclick="addNewRow('Customer')"><i class="fa fa-plus btn-icon"></i></button>
                                     }
                                     <input id="delete-task" type="hidden" asp-for="CustomerTasks[i].IsDeleted" name="CustomerTasks[@i].IsDeleted" />
                                 </td>
