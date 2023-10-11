@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="~/css/appointment.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Zapp.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="m-0">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
                     <img class="nav-logo" src="~/Logo/zapp-logo (2).png" alt="zapp-logo" />
@@ -30,7 +30,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
-                    <ul class="navbar-nav flex-grow-0">
+                    <ul class="navbar-nav flex-grow-0 px-5">
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="Index">Afspraken</a>
                         </li>
@@ -44,7 +44,7 @@
                             <a class="nav-link" asp-area="" asp-controller="Task" asp-action="Index">Taken</a>
                         </li>
                     </ul>
-                    <div class="dropdown" style="float:right;">
+                    <div class="dropdown">
                         <button class="dropbtn">
                             <i class="fa fa-user" aria-hidden="true"></i>
                         </button>
@@ -56,7 +56,7 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="container-fluid bg">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -69,4 +69,3 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-

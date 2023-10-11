@@ -1,7 +1,7 @@
 @model Zapp.Models.AppointmentViewModel
 
 @{
-    Layout = "_Layout.cshtml";
+    Layout = "../Shared/_Layout.cshtml";
     ViewData["Title"] = "Afspraak bijwerken";
     ViewData["info"] = Model.Appointment.Customer.Name;
     ViewData["info_2"] = Model.Appointment.Scheduled.ToString("d MMMM yyyy");

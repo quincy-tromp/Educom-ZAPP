@@ -55,7 +55,7 @@ table th, td {
 }
 
 .dropbtn {
-    background-color: #0158a4;
+    background-color: #005fab;
     color: white;
     padding: 16px;
     font-size: 16px;
@@ -66,6 +66,7 @@ table th, td {
 .dropdown {
     position: relative;
     display: inline-block;
+    float: right;
 }
 
 .dropdown-content {
@@ -102,6 +103,10 @@ table th, td {
 }
 
 nav {
+    background-color: #005fab;
+}
+
+.nav-item:hover {
     background-color: #0158a4;
 }
 
@@ -115,6 +120,10 @@ nav {
 
 .navbar-brand {
     width: 100px;
+}
+
+.navbar-brand:hover, .opac:hover {
+    opacity: 0.7;
 }
 
 .nav-logo {
@@ -161,4 +170,44 @@ nav {
 .pp {
     padding-left: 0;
     padding-right: 0;
+}
+
+.background {
+    background-color: #005fab;
+    min-height: 100vh;
+}
+
+.w-6 {
+    width: 600px;
+}
+
+.background form {
+    border: none;
+}
+
+.background button {
+    width: 40%;
+    background-color: #005fab;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom-color: white;
+}
+
+.background button:hover {
+    background-color: #0158a4;
+}
+
+.zapp {
+    border: none;
+    padding: 16px 16px 0 16px;
+}
+
+.p-custom {
+    padding: 64px 64px 64px 0;
+}
+
+.bg {
+    background: linear-gradient(to bottom, #005fab, #0C2372);
+    height: 88.1vh; 
 }
