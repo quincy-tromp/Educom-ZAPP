@@ -43,11 +43,7 @@ namespace Zapp.Controllers
         {
             try
             {
-                for (int i = 0; i < model.CustomerTasks.Count(); i++)
-                {
-                    ModelState.Remove($"CustomerTasks[{i}].Customer");
-                    ModelState.Remove($"CustomerTasks[{i}].Task.Name");
-                }
+                ModelState.Clear();
 
                 var customer = model.Customer;
                 var customerTasks = model.CustomerTasks;
@@ -55,22 +51,18 @@ namespace Zapp.Controllers
 
                 if (customer.Name == null || customer.Name == "")
                 {
-                    ModelState.Remove("Customer.Name");
                     ModelState.AddModelError("Customer.Name", "Klant naam invoeren");
                 }
                 if (customer.Address == null || customer.Address == "")
                 {
-                    ModelState.Remove("Customer.Address");
                     ModelState.AddModelError("Customer.Address", "Klant adres invoeren");
                 }
                 if (customer.PostalCode == null || customer.PostalCode == "")
                 {
-                    ModelState.Remove("Customer.PostalCode");
                     ModelState.AddModelError("Customer.PostalCode", "Klant postcode invoeren");
                 }
                 if (customer.Residence == null || customer.Residence == "")
                 {
-                    ModelState.Remove("Customer.Residence");
                     ModelState.AddModelError("Customer.Residence", "Klant woonplaats invoeren");
                 }
 
@@ -174,11 +166,7 @@ namespace Zapp.Controllers
         {
             try
             {
-                for (int i = 0; i < model.CustomerTasks.Count(); i++)
-                {
-                    ModelState.Remove($"CustomerTasks[{i}].Customer");
-                    ModelState.Remove($"CustomerTasks[{i}].Task.Name");
-                }
+                ModelState.Clear();
 
                 var customer = model.Customer;
                 var customerTasks = model.CustomerTasks;
@@ -186,22 +174,18 @@ namespace Zapp.Controllers
 
                 if (customer.Name == null || customer.Name == "")
                 {
-                    ModelState.Remove("Customer.Name");
                     ModelState.AddModelError("Customer.Name", "Klant naam invoeren");
                 }
                 if (customer.Address == null || customer.Address == "")
                 {
-                    ModelState.Remove("Customer.Address");
                     ModelState.AddModelError("Customer.Address", "Klant adres invoeren");
                 }
                 if (customer.PostalCode == null || customer.PostalCode == "")
                 {
-                    ModelState.Remove("Customer.PostalCode");
                     ModelState.AddModelError("Customer.PostalCode", "Klant postcode invoeren");
                 }
                 if (customer.Residence == null || customer.Residence == "")
                 {
-                    ModelState.Remove("Customer.Residence");
                     ModelState.AddModelError("Customer.Residence", "Klant woonplaats invoeren");
                 }
 

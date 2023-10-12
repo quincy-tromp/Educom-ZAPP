@@ -42,13 +42,7 @@ namespace Zapp.Controllers
         {
             try
             {   // Bring model to a valid state
-                ModelState.Remove("Appointment.Customer");
-                ModelState.Remove("Appointment.Employee");
-                ModelState.Remove("Appointment.EmployeeId");
-                for (int i = 0; i < model.AppointmentTasks.Count(); i++)
-                {
-                    ModelState.Remove($"AppointmentTasks[{i}].Appointment");
-                }
+                ModelState.Clear();
                 // Filter appointment tasks
                 model.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(model.AppointmentTasks);
                 model.AppointmentTasks = AppointmentHelper.removeDuplicateAppointmentTasks(model.AppointmentTasks);
@@ -213,17 +207,12 @@ namespace Zapp.Controllers
         public IActionResult Edit(AppointmentViewModel model)
         {
             try
-            {   // Bring model to a valid state 
-                ModelState.Remove("Appointment.Customer");
-                ModelState.Remove("Appointment.Employee");
-                for (int i = 0; i < model.AppointmentTasks.Count(); i++)
-                {
-                    ModelState.Remove($"AppointmentTasks[{i}].Appointment");
-                    ModelState.Remove($"AppointmentTasks[{i}].Task");
-                }
+            {
                 // Filter appointment tasks
                 model.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(model.AppointmentTasks);
                 model.AppointmentTasks = AppointmentHelper.removeDuplicateAppointmentTasks(model.AppointmentTasks);
+                // Bring model to a valid state 
+                ModelState.Clear();
 
                 // Validate data
                 if (AppointmentValidator.IsIntIdZero(model.Appointment.CustomerId))

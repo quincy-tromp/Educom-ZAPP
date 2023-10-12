@@ -40,18 +40,18 @@ function AddTaskRow(table, rowIndex, task, flag) {
 
     if (flag == 1) {
         cell4.innerHTML =
-        '<div class="form-group">' +
-            '<input id="is-task-done" name="' + task + 'Tasks[@i].IsDone" type="checkbox" asp-for="' + task + 'Tasks[i].IsDone" value="@Model.' + task + 'Tasks[i].IsDone" />' +
+            '<div class="form-group">' +
+            '<input id="is-task-done" name="' + task + 'Tasks[' + rowIndex + '].IsDone" type="checkbox" asp-for="' + task + 'Tasks[i].IsDone" value="@Model.' + task + 'Tasks[i].IsDone" />' +
         '</div>';
         cell5.innerHTML =
         '<button id="add-new-task-btn" onclick="addNewRow(\'' + task + '\',1)"><i class="fa fa-plus btn-icon"></i></button>' +
-        '<input id="delete-task" type="hidden" asp-for="' + task + 'Tasks[i].IsDeleted" name="' + task + 'Tasks[@i].IsDeleted" />';
+        '<input id="delete-task" type="hidden" asp-for="' + task + 'Tasks[i].IsDeleted" name="' + task + 'Tasks[' + rowIndex + '].IsDeleted" value="False" />';
     }
     else {
         cell4.innerHTML = '';
         cell5.innerHTML =
-        '<button id="add-new-task-btn" onclick="addNewRow(\'' + task + '\')"><i class="fa fa-plus btn-icon"></i></button>' +
-        '<input id="delete-task" type="hidden" asp-for="' + task + 'Tasks[i].IsDeleted" name="' + task + 'Tasks[@i].IsDeleted" />';
+            '<button id="add-new-task-btn" onclick="addNewRow(\'' + task + '\')"><i class="fa fa-plus btn-icon"></i></button>' +
+            '<input id="delete-task" type="hidden" asp-for="' + task + 'Tasks[i].IsDeleted" name="' + task + 'Tasks[' + rowIndex + '].IsDeleted" value="False" />';
     }
 }
 
@@ -60,7 +60,7 @@ function transformButton(table, rowIndex, task) {
     var row = table.rows[rowIndex];
     var cell = row.cells[4].innerHTML =
     '<button id="delete-task" onclick="deleteTask(' + rowIndex + ')"><i class="fa fa-trash-o btn-icon"></i></button>' +
-    '<input id="delete-task" type="hidden" asp-for="' + task + 'Tasks[i].IsDeleted" name="' + task + 'Tasks[@i].IsDeleted" />';
+    '<input id="delete-task" type="hidden" asp-for="' + task + 'Tasks[i].IsDeleted" name="' + task + 'Tasks[' + rowIndex + '].IsDeleted" />';
 }
 
 function deleteTask(rowIndex) {
