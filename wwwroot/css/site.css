@@ -110,6 +110,10 @@ nav {
     background-color: #0158a4;
 }
 
+.stop-hov:hover {
+    background-color: transparent;
+}
+
 .nav-link {
     color: #FFFFFF;
 }
@@ -210,4 +214,8 @@ nav {
 .bg {
     background: linear-gradient(to bottom, #005fab, #0C2372);
     height: 88.1vh; 
+}
+
+.h-vh {
+    min-height: 70vh;
 }

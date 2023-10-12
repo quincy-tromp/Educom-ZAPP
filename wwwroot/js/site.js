@@ -38,7 +38,6 @@ function AddTaskRow(table, rowIndex, task, flag) {
         '<input id="task-info" name="' + task + 'Tasks[' + rowIndex + '].AdditionalInfo" asp-for="' + task + 'Tasks[i].AdditionalInfo" type="text" class="form-control" />' +
     '</div>';
 
-
     if (flag == 1) {
         cell4.innerHTML =
         '<div class="form-group">' +
@@ -72,7 +71,7 @@ function deleteTask(rowIndex) {
     var inputFields = row.getElementsByTagName("input");
     for (var i = 0; i < inputFields.length; i++) {
         if (inputFields[i].id == "delete-task") {
-            inputFields[i].setAttribute("value", "true");
+            inputFields[i].setAttribute("value", "True");
         }
         inputFields[i].setAttribute("id", "disabled-field");
         inputFields[i].readOnly = true;

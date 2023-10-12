@@ -177,11 +177,12 @@ namespace Zapp.Controllers
                 for (int i = 0; i < model.CustomerTasks.Count(); i++)
                 {
                     ModelState.Remove($"CustomerTasks[{i}].Customer");
-                    ModelState.Remove($"AppointmentTasks[{i}].Task.Name");
+                    ModelState.Remove($"CustomerTasks[{i}].Task.Name");
                 }
 
                 var customer = model.Customer;
                 var customerTasks = model.CustomerTasks;
+                customerTasks = customerTasks.Where(e => e.Task.Name != null).ToArray();
 
                 if (customer.Name == null || customer.Name == "")
                 {
@@ -251,6 +252,7 @@ namespace Zapp.Controllers
                                 if (customerTask.IsDeleted)
                                 {
                                     _context.CustomerTask.Remove(savedTask);
+                                    _context.SaveChanges();
                                 }
                                 else
                                 {
@@ -271,6 +273,10 @@ namespace Zapp.Controllers
                                     AdditionalInfo = customerTask.AdditionalInfo
                                 };
                                 _context.CustomerTask.Add(newCustomerTask);
+                            }
+                            if (customerTask.IsDeleted)
+                            {
+                                _context.CustomerTask.Remove(customerTask);
                             }
                         }
                     }

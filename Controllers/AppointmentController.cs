@@ -307,6 +307,7 @@ namespace Zapp.Controllers
                             if (appointmentTasks[i].IsDeleted)
                             {
                                 _context.AppointmentTask.Remove(savedTask);
+                                _context.SaveChanges();
                             }
                             else
                             {
@@ -330,6 +331,10 @@ namespace Zapp.Controllers
                                 IsDone = appointmentTasks[i].IsDone
                             };
                             _context.AppointmentTask.Add(newAppointmentTask);
+                        }
+                        if (appointmentTasks[i].IsDeleted)
+                        {
+                            _context.AppointmentTask.Remove(appointmentTasks[i]);
                         }
                     }
                     _context.SaveChanges();
