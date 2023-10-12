@@ -54,19 +54,6 @@ namespace Zapp.Models.Business
         }
 
         /// <summary>
-        /// Checks if employee has another appointment scheduled for the selected datetime
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="vm"></param>
-        /// <returns></returns>
-        public static bool IsEmployeeUnavailable(ApplicationDbContext context, AppointmentViewModel vm)
-        {
-            return (context.Appointment
-                    .Where(e => e.EmployeeId == vm.Appointment.EmployeeId)
-                    .Any(e => e.Scheduled == vm.Appointment.Scheduled));
-        }
-
-        /// <summary>
         /// Removes empty appointment tasks
         /// </summary>
         /// <param name="appointmentTasks">The array of appointment tasks (with empty tasks)</param>

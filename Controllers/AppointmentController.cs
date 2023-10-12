@@ -211,6 +211,7 @@ namespace Zapp.Controllers
                 // Filter appointment tasks
                 model.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(model.AppointmentTasks);
                 model.AppointmentTasks = AppointmentHelper.removeDuplicateAppointmentTasks(model.AppointmentTasks);
+
                 // Bring model to a valid state 
                 ModelState.Clear();
 
@@ -320,10 +321,6 @@ namespace Zapp.Controllers
                                 IsDone = appointmentTasks[i].IsDone
                             };
                             _context.AppointmentTask.Add(newAppointmentTask);
-                        }
-                        if (appointmentTasks[i].IsDeleted)
-                        {
-                            _context.AppointmentTask.Remove(appointmentTasks[i]);
                         }
                     }
                     _context.SaveChanges();

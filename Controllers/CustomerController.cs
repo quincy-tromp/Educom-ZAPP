@@ -258,10 +258,6 @@ namespace Zapp.Controllers
                                 };
                                 _context.CustomerTask.Add(newCustomerTask);
                             }
-                            if (customerTask.IsDeleted)
-                            {
-                                _context.CustomerTask.Remove(customerTask);
-                            }
                         }
                     }
                 }
