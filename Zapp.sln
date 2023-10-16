@@ -5,7 +5,7 @@ VisualStudioVersion = 25.0.1706.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zapp", "Zapp.csproj", "{6C5F59F5-01A9-4B91-8709-A9030D46ACDD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zapp.Tests", "..\Zapp.Tests\Zapp.Tests.csproj", "{67C302FE-CCBD-429F-A2B9-6BB1707C3F38}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zapp.Tests", "..\Zapp.Tests\Zapp.Tests.csproj", "{891E002B-763C-4108-B695-0222A06E6C90}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{6C5F59F5-01A9-4B91-8709-A9030D46ACDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C5F59F5-01A9-4B91-8709-A9030D46ACDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C5F59F5-01A9-4B91-8709-A9030D46ACDD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{67C302FE-CCBD-429F-A2B9-6BB1707C3F38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{67C302FE-CCBD-429F-A2B9-6BB1707C3F38}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{67C302FE-CCBD-429F-A2B9-6BB1707C3F38}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{67C302FE-CCBD-429F-A2B9-6BB1707C3F38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{891E002B-763C-4108-B695-0222A06E6C90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{891E002B-763C-4108-B695-0222A06E6C90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{891E002B-763C-4108-B695-0222A06E6C90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{891E002B-763C-4108-B695-0222A06E6C90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -21,10 +21,10 @@ namespace Zapp.Controllers
         }
 
         // GET: Customer
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
               return _context.Customer != null ? 
-                          View(await _context.Customer.ToListAsync()) :
+                          View(nameof(Index), _context.Customer.ToList()) :
                           Problem("Entity set 'ApplicationDbContext.Customer'  is null.");
         }
 
@@ -33,7 +33,7 @@ namespace Zapp.Controllers
         {
             var model = new CustomerViewModel { Customer = new Customer() };
             model.AllTasks = _context.TaskItem.ToList();
-            return View(model);
+            return View(nameof(Create), model);
         }
 
         // POST: Customer/Create
@@ -69,7 +69,7 @@ namespace Zapp.Controllers
                 if (!ModelState.IsValid)
                 {
                     model.AllTasks = _context.TaskItem.ToList();
-                    return View(model);
+                    return View(nameof(Create), model);
                 }
 
                 // Process new customer
@@ -81,7 +81,7 @@ namespace Zapp.Controllers
                     .Last();
                 if (theCustomer == null)
                 {
-                    throw new Exception("Something went wrong while retrieving the customer from the database.");
+                    throw null;
                 }
                 customer.Id = theCustomer.Id;
 
@@ -93,7 +93,7 @@ namespace Zapp.Controllers
                     var theTask = _context.TaskItem
                     .Where(e => e.Name == customerTask.Task.Name)
                     .FirstOrDefault();
-                    if (theTask == null)
+                    if (theTask == null && customerTask.IsDeleted == false)
                     {
                         TaskItem newTaskItem = new TaskItem() { Name = customerTask.Task.Name };
                         _context.TaskItem.Add(newTaskItem);
@@ -102,10 +102,14 @@ namespace Zapp.Controllers
                         theTask = _context.TaskItem.OrderBy(e => e.Id).Last();
                         if (theTask == null)
                         {
-                            throw new Exception("Something went wrong while retrieving the task from the database.");
+                            throw null;
                         }
                     }
-                    customerTask.TaskId = theTask.Id;
+                    if (theTask != null)
+                    {
+                        customerTask.TaskId = theTask.Id;
+                    }
+                    
 
                     if (!customerTask.IsDeleted)
                     {
@@ -125,7 +129,7 @@ namespace Zapp.Controllers
             {
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan.");
                 model.AllTasks = _context.TaskItem.ToList();
-                return View(model);
+                return View(nameof(Create), model);
             }
         }
 
@@ -156,7 +160,7 @@ namespace Zapp.Controllers
                 model.CustomerTasks = customerTasks;
             }
             model.AllTasks = _context.TaskItem.ToList();
-            return View(model);
+            return View(nameof(Edit), model);
         }
 
         // POST: Customer/Edit/5
@@ -192,7 +196,7 @@ namespace Zapp.Controllers
                 if (!ModelState.IsValid)
                 {
                     model.AllTasks = _context.TaskItem.ToList();
-                    return View(model);
+                    return View(nameof(Edit), model);
                 }
 
                 // Process customer
@@ -274,7 +278,7 @@ namespace Zapp.Controllers
                 {
                     ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan.");
                     model.AllTasks = _context.TaskItem.ToList();
-                    return View(model);
+                    return View(nameof(Edit), model);
                 }
             }
         }
@@ -282,7 +286,7 @@ namespace Zapp.Controllers
         // POST: Customer/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(CustomerViewModel model)
+        public IActionResult DeleteConfirmed(CustomerViewModel model)
         {
             if (_context.Customer == null)
             {
@@ -290,24 +294,23 @@ namespace Zapp.Controllers
             }
 
             var id = model.Customer.Id;
-            var customer = await _context.Customer.FindAsync(id);
+            var customer = _context.Customer.Find(id);
             if (customer != null)
             {
                 _context.Customer.Remove(customer);
-            }
 
-            var customerTasks = _context.CustomerTask
+                var customerTasks = _context.CustomerTask
                 .Where(e => e.CustomerId == id)
                 .ToList();
-            if (customerTasks!= null && customerTasks.Count() > 0)
-            {
-                foreach (var task in customerTasks)
+                if (customerTasks != null && customerTasks.Count() > 0)
                 {
-                    _context.CustomerTask.Remove(task);
+                    foreach (var task in customerTasks)
+                    {
+                        _context.CustomerTask.Remove(task);
+                    }
                 }
             }
-            
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
 

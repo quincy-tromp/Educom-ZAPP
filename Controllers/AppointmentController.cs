@@ -16,13 +16,13 @@ namespace Zapp.Controllers
         }
 
 // GET: Appointment
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             var applicationDbContext = _context.Appointment
                 .Include(a => a.Customer)
                 .Include(a => a.Employee)
                 .OrderBy(a => a.Scheduled);
-            return View(await applicationDbContext.ToListAsync());
+            return View(nameof(Index), applicationDbContext.ToList());
         }
 
 
@@ -31,7 +31,7 @@ namespace Zapp.Controllers
         {
             var model = AppointmentHelper.CreateNewViewModel();
             model = AppointmentHelper.InitializeViewModel(_context, model, true);
-            return View(model);
+            return View(nameof(Create), model);
         }
 
 
@@ -76,7 +76,7 @@ namespace Zapp.Controllers
                 if (!ModelState.IsValid)
                 {
                     model = AppointmentHelper.InitializeViewModel(_context, model, false);
-                    return View(model);
+                    return View(nameof(Create), model);
                 }
 
                 // Process appointment
@@ -181,7 +181,7 @@ namespace Zapp.Controllers
             {
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
                 model = AppointmentHelper.InitializeViewModel(_context, model, true);
-                return View(model);
+                return View(nameof(Create), model);
             }
         }
 
@@ -197,7 +197,7 @@ namespace Zapp.Controllers
             model = AppointmentHelper.InitializeViewModel(_context, model, false);
             model = AppointmentHelper.AddAppointmentToViewModel(_context, model, id);
 
-            return View(model);
+            return View(nameof(Edit), model);
         }
 
 
@@ -244,7 +244,7 @@ namespace Zapp.Controllers
                 {
                     model = AppointmentHelper.InitializeViewModel(_context, model, false);
                     model = AppointmentHelper.AddAppointmentToViewModel(_context, model, model.Appointment.Id);
-                    return View(model);
+                    return View(nameof(Edit), model);
                 }
 
                 // Process appointment
@@ -334,7 +334,7 @@ namespace Zapp.Controllers
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
                 model = AppointmentHelper.InitializeViewModel(_context, model, false);
                 model = AppointmentHelper.AddAppointmentToViewModel(_context, model, model.Appointment.Id);
-                return View(model);
+                return View(nameof(Edit), model);
             }
 
         }
