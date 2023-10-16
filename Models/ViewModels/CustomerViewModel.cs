@@ -1,7 +1,7 @@
 ﻿using System;
 namespace Zapp.Models.ViewModels
 {
-	public class CustomerViewModel
+	public class CustomerViewModel : IViewModel
 	{
         public required Customer Customer { get; set; }
 

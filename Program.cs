@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Zapp.Data;
 using Zapp.Models;
+using Zapp.Models.BusinessLogic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<Employee>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddSingleton<ControllerHelper, AppointmentControllerHelper>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

@@ -13,7 +13,7 @@
     <None Remove="Assets\" />
     <None Remove="Assets\Diagrams\" />
     <None Remove="Models\ViewModels\" />
-    <None Remove="Models\Business\" />
+    <None Remove="Models\BusinessLogic\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="wwwroot\Logo\zapp-logo.png" />
@@ -38,8 +38,8 @@
     <Folder Include="Assets\" />
     <Folder Include="Assets\Diagrams\" />
     <Folder Include="Models\ViewModels\" />
-    <Folder Include="Models\Business\" />
     <Folder Include="wwwroot\Logo\" />
+    <Folder Include="Models\BusinessLogic\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\Logo\zapp-logo.png" />

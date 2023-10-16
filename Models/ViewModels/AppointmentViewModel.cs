@@ -3,10 +3,11 @@ using System.Collections;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Zapp.Models;
+using Zapp.Models.ViewModels;
 
 namespace Zapp.Models
 {
-	public class AppointmentViewModel
+	public class AppointmentViewModel : IViewModel
 	{
 		public required Appointment Appointment { get; set; }
 

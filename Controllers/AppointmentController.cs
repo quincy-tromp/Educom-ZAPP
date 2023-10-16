@@ -3,16 +3,19 @@ using Microsoft.EntityFrameworkCore;
 using Zapp.Data;
 using Zapp.Models;
 using Zapp.Models.Business;
+using Zapp.Models.BusinessLogic;
 
 namespace Zapp.Controllers
 {
     public class AppointmentController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private AppointmentControllerHelper _helper;
 
-        public AppointmentController(ApplicationDbContext context)
+        public AppointmentController(ApplicationDbContext context, AppointmentControllerHelper helper)
         {
             _context = context;
+            _helper = helper;
         }
 
 // GET: Appointment
@@ -31,6 +34,7 @@ namespace Zapp.Controllers
         {
             var model = AppointmentHelper.CreateNewViewModel();
             model = AppointmentHelper.InitializeViewModel(_context, model, true);
+
             return View(nameof(Create), model);
         }
 
