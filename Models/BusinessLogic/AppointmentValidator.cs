@@ -1,28 +1,44 @@
 ﻿using System;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 using Zapp.Data;
 
-namespace Zapp.Models.Business
+namespace Zapp.Models.BusinessLogic
 {
 	public static class AppointmentValidator
 	{
         /// <summary>
-        /// Checks if Id equals to zero
+        /// Validates the AppointmentViewModel and adds ModelError if model is invalid
         /// </summary>
-        /// <param name="id">The Id to check</param>
-        /// <returns>True if Id equal to zero or False if not</returns>
-        public static bool IsIntIdZero(int id)
+        /// <param name="model">The AppointmentViewModel to validate</param>
+        /// <param name="modelState">The controller modelState in which to add errors </param>
+        /// <param name="context">The ApplicationDbContext</param>
+        public static void ValidateModel(AppointmentViewModel model, ModelStateDictionary modelState, ApplicationDbContext context)
         {
-            return id == 0;
-        }
-
-        /// <summary>
-        /// Checks if the given Id is null
-        /// </summary>
-        /// <param name="id">The Id to check</param>
-        /// <returns>True if Id is null or False if not</returns>
-        public static bool IsIdNull(string id)
-        {
-            return id == null;
+            if (model.Appointment.CustomerId == 0 || model.Appointment.CustomerId == null)
+            {
+                modelState.AddModelError("Appointment.CustomerId", "Selecteer een klant.");
+            }
+            if (model.Appointment.EmployeeId == "" || model.Appointment.EmployeeId == null)
+            {
+                modelState.AddModelError("Appointment.EmployeeId", "Selecteer een medewerker.");
+            }
+            if (!IsValidDate(model.Appointment.Scheduled))
+            {
+                modelState.AddModelError("Appointment.Scheduled", "De gekozen datum is niet beschikbaar.");
+            }
+            if (!IsValidTime(model.Appointment.Scheduled))
+            {
+                modelState.AddModelError("Appointment.Scheduled", "De gekozen tijd is niet beschikbaar.");
+            }
+            if (!IsEmployeeAvailable(context, model.Appointment.EmployeeId, model.Appointment.Scheduled, null))
+            {
+                modelState.AddModelError("Appointment.Scheduled", "Dit medewerker is niet beschikbaar op de gekozen tijdstip.");
+            }
+            if (model.AppointmentTasks.Count() == 0 || model.AppointmentTasks == null)
+            {
+                modelState.AddModelError("AppointmentTasks", "Voeg een taak toe.");
+            }
         }
 
         /// <summary>
@@ -30,7 +46,7 @@ namespace Zapp.Models.Business
         /// </summary>
         /// <param name="dateTime">DateTime to check</param>
         /// <returns>True if date is valid or False if not</returns>
-        public static bool IsValidDate(DateTime dateTime)
+        private static bool IsValidDate(DateTime dateTime)
         {
             return (IsWeekday(dateTime) && dateTime >= DateTime.Today);
         }
@@ -40,7 +56,7 @@ namespace Zapp.Models.Business
         /// </summary>
         /// <param name="dateTime">DateTime to check</param>
         /// <returns>True if time is valid or False if not</returns>
-        public static bool IsValidTime(DateTime dateTime)
+        private static bool IsValidTime(DateTime dateTime)
         {
             return (IsBetweenWorkHours(dateTime, 8, 17) && dateTime > DateTime.Now);
         }
@@ -75,10 +91,10 @@ namespace Zapp.Models.Business
         /// <param name="scheduled">The time to check for</param>
         /// <param name="appointmentId">The Id of the appointment</param>
         /// <returns>True if employee is available or False if not</returns>
-        public static bool IsEmployeeAvailable(ApplicationDbContext context, string employeeId, DateTime scheduled, int? appointmentId)
+        private static bool IsEmployeeAvailable(ApplicationDbContext context, string employeeId, DateTime scheduled, int? appointmentId)
         {
             var employeeSchedule = GetEmployeeSchedule(context, employeeId, scheduled.Date, appointmentId);
-            if (isEmployeeScheduleFree(employeeSchedule))
+            if (IsEmployeeScheduleFree(employeeSchedule))
             {
                 return true;
             }
@@ -105,7 +121,7 @@ namespace Zapp.Models.Business
         /// </summary>
         /// <param name="employeeSchedule">The list of employee appointments for the day</param>
         /// <returns>True if schedule is empty or False if not</returns>
-        private static bool isEmployeeScheduleFree(List<DateTime> employeeSchedule)
+        private static bool IsEmployeeScheduleFree(List<DateTime> employeeSchedule)
         {
             return (employeeSchedule == null || employeeSchedule.Count() == 0);
         }
@@ -137,17 +153,6 @@ namespace Zapp.Models.Business
             }
             return true;
         }
-
-        /// <summary>
-        /// Checks if appointment tasks array is empty or null
-        /// </summary>
-        /// <param name="appointmentTasks">The array to check</param>
-        /// <returns>True if array is empty / null or False if not</returns>
-        public static bool IsEmptyAppointmentTasks(AppointmentTask[] appointmentTasks)
-        {
-            return (appointmentTasks.Count() == 0 || appointmentTasks == null);
-        }
-
     }
 }
 

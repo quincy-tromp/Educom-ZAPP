@@ -15,6 +15,8 @@ namespace Zapp.Models
 
 		public CustomerTask[] CustomerTasks { get; set; } = new CustomerTask[] { };
 
+		public AppointmentTask[] DeletedTasks { get; set; } = null!;
+
 
 		public List<Customer> AllCustomers { get; set; } = new();
 

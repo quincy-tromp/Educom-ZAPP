@@ -7,9 +7,9 @@ namespace Zapp.Models.BusinessLogic
 {
 	public abstract class ControllerHelper<T> where T : ITask
 	{
-		public ControllerHelper()
+        public ControllerHelper()
 		{
-		}
+        }
 
         public T[] RemoveEmptyTasks(T[] tasks)
 		{
