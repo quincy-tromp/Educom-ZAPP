@@ -32,9 +32,9 @@ namespace Zapp.Controllers
 // GET: Appointment/Create
         public IActionResult Create()
         {
-            var model = AppointmentHelper.CreateNewViewModel();
-            model = AppointmentHelper.InitializeViewModel(_context, model, true);
-
+            var model = _helper.CreateViewModel();
+            model = _helper.InitializeViewModel(_context, model);
+            model.Appointment.Scheduled = _helper.GetNow();
             return View(nameof(Create), model);
         }
 
@@ -45,11 +45,10 @@ namespace Zapp.Controllers
         public IActionResult Create(AppointmentViewModel model)
         {
             try
-            {   // Bring model to a valid state
+            {   
                 ModelState.Clear();
-                // Filter appointment tasks
-                model.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(model.AppointmentTasks);
-                model.AppointmentTasks = AppointmentHelper.removeDuplicateAppointmentTasks(model.AppointmentTasks);
+                model.AppointmentTasks = _helper.RemoveEmptyTasks(model.AppointmentTasks);
+                model.AppointmentTasks = _helper.RemoveDuplicateTasks(model.AppointmentTasks);
 
                 // Validate data 
                 if (AppointmentValidator.IsIntIdZero(model.Appointment.CustomerId))
@@ -79,7 +78,7 @@ namespace Zapp.Controllers
                 }
                 if (!ModelState.IsValid)
                 {
-                    model = AppointmentHelper.InitializeViewModel(_context, model, false);
+                    model = _helper.InitializeViewModel(_context, model);
                     return View(nameof(Create), model);
                 }
 
@@ -184,7 +183,8 @@ namespace Zapp.Controllers
             catch
             {
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
-                model = AppointmentHelper.InitializeViewModel(_context, model, true);
+                model = _helper.InitializeViewModel(_context, model);
+                model.Appointment.Scheduled = _helper.GetNow();
                 return View(nameof(Create), model);
             }
         }
@@ -197,10 +197,9 @@ namespace Zapp.Controllers
             {
                 return NotFound();
             }
-            var model = AppointmentHelper.CreateNewViewModel();
-            model = AppointmentHelper.InitializeViewModel(_context, model, false);
-            model = AppointmentHelper.AddAppointmentToViewModel(_context, model, id);
-
+            var model = _helper.CreateViewModel();
+            model = _helper.InitializeViewModel(_context, model);
+            model = _helper.AddAppointmentToViewModel(_context, model, id);
             return View(nameof(Edit), model);
         }
 
@@ -213,8 +212,8 @@ namespace Zapp.Controllers
             try
             {
                 // Filter appointment tasks
-                model.AppointmentTasks = AppointmentHelper.removeEmptyAppointmentTasks(model.AppointmentTasks);
-                model.AppointmentTasks = AppointmentHelper.removeDuplicateAppointmentTasks(model.AppointmentTasks);
+                model.AppointmentTasks = _helper.RemoveEmptyTasks(model.AppointmentTasks);
+                model.AppointmentTasks = _helper.RemoveDuplicateTasks(model.AppointmentTasks);
 
                 // Bring model to a valid state 
                 ModelState.Clear();
@@ -246,8 +245,8 @@ namespace Zapp.Controllers
                 }
                 if (!ModelState.IsValid)
                 {
-                    model = AppointmentHelper.InitializeViewModel(_context, model, false);
-                    model = AppointmentHelper.AddAppointmentToViewModel(_context, model, model.Appointment.Id);
+                    model = _helper.InitializeViewModel(_context, model);
+                    model = _helper.AddAppointmentToViewModel(_context, model, model.Appointment.Id);
                     return View(nameof(Edit), model);
                 }
 
@@ -336,8 +335,8 @@ namespace Zapp.Controllers
             catch
             {
                 ModelState.AddModelError("ModelOnly", "Er is iets fout gegaan");
-                model = AppointmentHelper.InitializeViewModel(_context, model, false);
-                model = AppointmentHelper.AddAppointmentToViewModel(_context, model, model.Appointment.Id);
+                model = _helper.InitializeViewModel(_context, model);
+                model = _helper.AddAppointmentToViewModel(_context, model, model.Appointment.Id);
                 return View(nameof(Edit), model);
             }
 

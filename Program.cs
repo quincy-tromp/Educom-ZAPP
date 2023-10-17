@@ -13,7 +13,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<Employee>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddSingleton<ControllerHelper, AppointmentControllerHelper>();
+builder.Services.AddSingleton<ControllerHelper<AppointmentTask>, AppointmentControllerHelper>();
+builder.Services.AddSingleton<IDateTime, SystemDateTime>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

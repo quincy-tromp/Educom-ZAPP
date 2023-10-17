@@ -1,46 +1,37 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Zapp.Data;
 using Zapp.Models.ViewModels;
 
 namespace Zapp.Models.BusinessLogic
 {
-	public class AppointmentControllerHelper : ControllerHelper
-	{
-		public AppointmentControllerHelper()
+	public class AppointmentControllerHelper : ControllerHelper<AppointmentTask>
+    {
+        private SystemDateTime _datetime;
+
+		public AppointmentControllerHelper(SystemDateTime datetime)
 		{
+            _datetime = datetime;
 		}
 
-        public override IViewModel CreateViewModel()
+        public DateTime GetNow()
+        {
+            return _datetime.Now;
+        }
+
+        public AppointmentViewModel CreateViewModel()
 		{
             return new AppointmentViewModel() { Appointment = new Appointment() };
         }
 
-        public IViewModel InitializeViewModel(
-            ApplicationDbContext context, AppointmentViewModel model, bool fillCurrentTime)
+        public AppointmentViewModel InitializeViewModel(
+            ApplicationDbContext context, AppointmentViewModel model)
 		{
             model.AllCustomers = context.Customer.ToList();
             model.AllEmployees = context.Users.ToList();
             model.AllTasks = context.TaskItem.ToList();
-            if (fillCurrentTime)
-            {
-                model.Appointment.Scheduled = GetCurrentDateTime();
-            }
             return model;
-        }
-
-        public DateTime GetCurrentDateTime()
-        {
-            DateTime currentDateTime = DateTime.Now;
-            return new DateTime(
-                currentDateTime.Year,
-                currentDateTime.Month,
-                currentDateTime.Day,
-                currentDateTime.Hour,
-                currentDateTime.Minute,
-                0,
-                0
-            );
         }
 
         public AppointmentViewModel AddAppointmentToViewModel(
